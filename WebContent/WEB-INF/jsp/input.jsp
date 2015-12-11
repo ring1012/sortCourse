@@ -11,7 +11,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <script type="text/javascript"
 	src="${ctx}/Resources/js/jquery/jquery-1.9.1.min.js"></script>
-	<script type="text/javascript"
+	<script type="text/javascript" 
 	src="${ctx}/Resources/js/jquery/jquery-ui-1.9.2.custom.min.js"></script>
 <title>输入信息</title>
 </head>
