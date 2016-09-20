@@ -27,7 +27,7 @@ public class SortContoller {
 	}
 
 	@RequestMapping(value="/deal.action", method = RequestMethod.POST)
-	public String deal(){
+	public String deal() {
 		System.out.println("simulator start!");
 		try {
 			request.setCharacterEncoding("UTF-8");
@@ -38,10 +38,39 @@ public class SortContoller {
 				json.append(line);
 			}
 			System.out.println(json.toString());
-		}catch(Exception e){
+		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
 		return "test";
+	}
+	
+	@RequestMapping(value="/testdeal.action",method=RequestMethod.POST)
+	public void testdeal(){
+		System.out.println("test start!");
+		try {
+			
+			String firstRet[]=request.getParameterValues("first");			
+			for(String s:firstRet){
+				System.out.print(s+" ");
+			}
+			System.out.println();
+			String secondRet[]=request.getParameterValues("second");
+			System.out.println("num:= "+secondRet.length);
+			for(String s:secondRet){
+				System.out.print(s+" ");
+			}
+			
+			
+			
+			
+			
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
 		}
+		
+	}
+	
+	
+	
 	
 }
