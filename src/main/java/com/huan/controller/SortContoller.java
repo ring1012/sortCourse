@@ -9,6 +9,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.huan.definition.Mytime;
+
 @Controller
 public class SortContoller {
 
@@ -28,6 +30,7 @@ public class SortContoller {
 
 	@RequestMapping(value="/deal.action", method = RequestMethod.POST)
 	public String deal() {
+		Mytime.start=System.currentTimeMillis();
 		System.out.println("simulator start!");
 		try {
 			request.setCharacterEncoding("UTF-8");
