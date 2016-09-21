@@ -9,7 +9,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <script type="text/javascript"
 	src="${ctx}/Resources/js/jquery/jquery-1.9.1.min.js"></script>
-<title>输入信息</title>
+<title>模拟数据展示</title>
 </head>
 <script>
 	$(document)
@@ -170,7 +170,6 @@
 			</div>
 
 		</form>
-		<a href="/sortCourse/simulator.action">模拟数据</a>
 	</div>
 </body>
 </html>

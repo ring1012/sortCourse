@@ -73,7 +73,10 @@ public class SortContoller {
 		
 	}
 	
-	
+	@RequestMapping(value = "/simulator.action", method = RequestMethod.GET)
+	public String simulator() {
+		return "simulator";
+	}
 	
 	
 }
