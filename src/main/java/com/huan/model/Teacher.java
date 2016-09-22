@@ -1,11 +1,20 @@
 package com.huan.model;
 
+import java.util.List;
+
 public class Teacher {
 	private String teacherName;
 	private String courseName;
 	private int perWeekClassNum;
 	private int perWeekTimeNum;
 	private boolean IsHead;
+	private List<Teacher>teachers;
+	public List<Teacher> getTeachers() {
+		return teachers;
+	}
+	public void setTeachers(List<Teacher> teachers) {
+		this.teachers = teachers;
+	}
 	public String getTeacherName() {
 		return teacherName;
 	}

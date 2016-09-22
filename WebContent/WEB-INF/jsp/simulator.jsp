@@ -133,6 +133,7 @@
 </head>
 <body>
 	<div class="container">
+	<h1>${name}</h1>
 	<br/>
 		<h3 class="text-center">年级信息</h3>
 		<form action="/sortCourse/deal.action" method="post" class="documentForm">

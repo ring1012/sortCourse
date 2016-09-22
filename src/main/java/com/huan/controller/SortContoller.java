@@ -1,7 +1,9 @@
 package com.huan.controller;
 
 import java.io.BufferedReader;
+import java.util.List;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +12,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.huan.definition.Mytime;
+import com.huan.model.Teacher;
+import com.huan.teacher.service.ITeacherService;
 
 @Controller
 public class SortContoller {
 
+	@Autowired
+	private ITeacherService teacherService;
+	
 	@Autowired
 	HttpServletRequest request;
 
@@ -75,6 +82,9 @@ public class SortContoller {
 	
 	@RequestMapping(value = "/simulator.action", method = RequestMethod.GET)
 	public String simulator() {
+		List<Teacher>ts=this.teacherService.findAll();
+		String name=ts.get(0).getCourseName();
+		request.setAttribute("name", name);
 		return "simulator";
 	}
 	
