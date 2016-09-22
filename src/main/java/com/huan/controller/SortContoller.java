@@ -83,7 +83,10 @@ public class SortContoller {
 	@RequestMapping(value = "/simulator.action", method = RequestMethod.GET)
 	public String simulator() {
 		List<Teacher>ts=this.teacherService.findAll();
+		int id=1;
+//		Teacher t=teacherService.selectByid(id);
 		String name=ts.get(0).getCourseName();
+//		 String name = t.getCourseName();
 		request.setAttribute("name", name);
 		return "simulator";
 	}

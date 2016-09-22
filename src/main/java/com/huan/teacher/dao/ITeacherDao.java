@@ -7,4 +7,5 @@ import com.huan.model.Teacher;
 public interface ITeacherDao {
 	List<Teacher>findAll();
 
+	Teacher selectByid(int i);
 }

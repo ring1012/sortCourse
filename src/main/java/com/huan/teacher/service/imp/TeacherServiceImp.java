@@ -23,4 +23,9 @@ public class TeacherServiceImp implements ITeacherService {
 		// TODO Auto-generated method stub
 		return teacherDao.findAll();
 	}
+	@Override
+	public Teacher selectByid(int id) {
+		// TODO Auto-generated method stub
+		return teacherDao.selectByid(id);
+	}
 }
