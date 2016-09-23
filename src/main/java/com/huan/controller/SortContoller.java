@@ -11,6 +11,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.huan.course.util.ConvertUtil;
 import com.huan.definition.Mytime;
 import com.huan.model.Teacher;
 import com.huan.teacher.service.ITeacherService;
@@ -41,16 +42,28 @@ public class SortContoller {
 		System.out.println("simulator start!");
 		try {
 			request.setCharacterEncoding("UTF-8");
-			StringBuffer json = new StringBuffer();
-			String line = null;
-			BufferedReader reader = request.getReader();
-			while ((line = reader.readLine()) != null) {
-				json.append(line);
+			
+			int classNum=Integer.parseInt(request.getParameter("classNum"));
+			int morning=Integer.parseInt(request.getParameter("morning"));
+			int afternoon=Integer.parseInt(request.getParameter("afternoon"));
+			int saturday=Integer.parseInt(request.getParameter("saturday"));
+			int sunday=Integer.parseInt(request.getParameter("sunday"));
+			String teacherName[]=request.getParameterValues("teacherName");
+			String courseName[]=request.getParameterValues("courseName");
+			String perWeekClassNum_s[]=request.getParameterValues("perWeekClassNum");
+			String perWeekTimeNum_s[]=request.getParameterValues("perWeekTimeNum");
+			String IsHead_s[]=request.getParameterValues("IsHead");
+			int perWeekClassNum[]=ConvertUtil.parsIntArray(perWeekClassNum_s);
+			int perWeekTimeNum[]=ConvertUtil.parsIntArray(perWeekTimeNum_s);
+			for(String s:IsHead_s){
+				System.out.println(s);
 			}
-			System.out.println(json.toString());
+			
+			
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
+		
 		return "test";
 	}
 	
@@ -70,10 +83,6 @@ public class SortContoller {
 				System.out.print(s+" ");
 			}
 			
-			
-			
-			
-			
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
@@ -83,11 +92,7 @@ public class SortContoller {
 	@RequestMapping(value = "/simulator.action", method = RequestMethod.GET)
 	public String simulator() {
 		List<Teacher>ts=this.teacherService.findAll();
-		int id=1;
-//		Teacher t=teacherService.selectByid(id);
-		String name=ts.get(0).getCourseName();
-//		 String name = t.getCourseName();
-		request.setAttribute("name", name);
+		request.setAttribute("teachers", ts);
 		return "simulator";
 	}
 	

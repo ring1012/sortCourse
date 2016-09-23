@@ -105,13 +105,12 @@
 			var saNum=parseInt($(".saturday").val());
 			var suNum=parseInt($(".sunday").val());
 			var sum2=count*(5*(mNum+aNum)+saNum+suNum);
-			alert(sum2);
 			if(sum1!=sum2){
 				alert("年级信息显示的课时总数目与教师总课时数目不相等")
 				return false;
 			}
 			
-			//	$('form').submit();
+			$('form').submit();
 		})
 
 	})
@@ -141,7 +140,7 @@
 		下午几节课:<input type="number" name="afternoon" class="afternoon" min='1'>
 		<br/><br/>
 		周六一共几节课:<input type="number" name="saturday" class="saturday" min='0' value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		周六一共几节课:<input type="number" name="sunday" class="sunday" min='0' value="0">
+		周日一共几节课:<input type="number" name="sunday" class="sunday" min='0' value="0">
 		</form>
 		
 		<h3 class="text-center">教师信息</h3>
