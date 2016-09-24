@@ -1,9 +1,7 @@
 package com.huan.controller;
 
-import java.io.BufferedReader;
 import java.util.List;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +9,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.huan.course.util.ConvertUtil;
 import com.huan.definition.Mytime;
 import com.huan.model.Teacher;
 import com.huan.teacher.service.ITeacherService;
+import com.huan.teacher.service.imp.DealService;
 
 @Controller
 public class SortContoller {
@@ -24,6 +22,9 @@ public class SortContoller {
 	
 	@Autowired
 	HttpServletRequest request;
+	
+	@Autowired
+	DealService dealService;
 
 	@RequestMapping(value = "/input.action", method = RequestMethod.GET)
 	public String input() {
@@ -42,29 +43,13 @@ public class SortContoller {
 		System.out.println("simulator start!");
 		try {
 			request.setCharacterEncoding("UTF-8");
-			
-			int classNum=Integer.parseInt(request.getParameter("classNum"));
-			int morning=Integer.parseInt(request.getParameter("morning"));
-			int afternoon=Integer.parseInt(request.getParameter("afternoon"));
-			int saturday=Integer.parseInt(request.getParameter("saturday"));
-			int sunday=Integer.parseInt(request.getParameter("sunday"));
-			String teacherName[]=request.getParameterValues("teacherName");
-			String courseName[]=request.getParameterValues("courseName");
-			String perWeekClassNum_s[]=request.getParameterValues("perWeekClassNum");
-			String perWeekTimeNum_s[]=request.getParameterValues("perWeekTimeNum");
-			String IsHead_s[]=request.getParameterValues("IsHead");
-			int perWeekClassNum[]=ConvertUtil.parsIntArray(perWeekClassNum_s);
-			int perWeekTimeNum[]=ConvertUtil.parsIntArray(perWeekTimeNum_s);
-			for(String s:IsHead_s){
-				System.out.println(s);
-			}
-			
+			dealService.excute(request);
 			
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			e.printStackTrace();
 		}
 		
-		return "test";
+		return "result";
 	}
 	
 	@RequestMapping(value="/testdeal.action",method=RequestMethod.POST)

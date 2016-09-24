@@ -4,10 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Random;
-
-import org.apache.log4j.chainsaw.Main;
 
 import com.huan.definition.MyRandom;
 import com.huan.definition.Mytime;
@@ -15,7 +14,6 @@ import com.huan.definition.Position;
 import com.huan.definition.ResultType;
 import com.huan.exception.Myexception;
 import com.huan.model.allData;
-
 
 public class SA {
 
@@ -25,12 +23,12 @@ public class SA {
 	private double t0;// 初始温度
 
 	private Random random;
-	public int needLessons = 39;
-	public int lessonNum = 7;
+	public int needLessons;
+	public int lessonNum;
 	public boolean noConflict = false;
 	public boolean success = false;// have answer
 	public int[][] sheetInfor;
-	public ArrayList<allData> datas;
+	public List<allData> datas;
 	public ArrayList<Integer[]> definedCost;
 	public ResultType bestResult = new ResultType();
 	public double minCost = 99999999;
@@ -39,7 +37,8 @@ public class SA {
 	public ResultType tempResult = new ResultType();
 	public ResultType beginResult = new ResultType();
 	public ArrayList<ArrayList<Integer>> classIncludeTeacher;
-	public int classNum = 15;
+	public int classNum;
+	public boolean everyWeek[];
 
 	public ArrayList<Double> bestCostflu = new ArrayList<>();
 	public ArrayList<Double> tempCostflu = new ArrayList<>();
@@ -64,34 +63,41 @@ public class SA {
 	 * @param datas
 	 *            老师信息
 	 * @param definedCost
-	 * 			  课程安排在不同课时产生的代价
-	 * @param classIncludeTeacher    
-	 * 			 各班级包含的老师索引号      
+	 *            课程安排在不同课时产生的代价
+	 * @param classIncludeTeacher
+	 *            各班级包含的老师索引号
 	 * 
 	 **/
-	public SA(int n, int t, double tt, double aa, ArrayList<allData> datas, ArrayList<Integer[]> definedCost,
-			ArrayList<ArrayList<Integer>> classIncludeTeacher) {
+	public SA(int n, int t, double tt, double aa, List<allData> datas, ArrayList<Integer[]> definedCost,
+			ArrayList<ArrayList<Integer>> classIncludeTeacher, int needLessons, int lessonNum, int classNum,
+			boolean[] everyWeek) {
 		N = n;
 		T = t;
 		t0 = tt;
 		a = aa;
 		random = MyRandom.getInstance();
-		sheetInfor = new int[15][needLessons];
+		sheetInfor = new int[classNum][needLessons];
 		// this.datas=new ArrayList<>(datas);
 		this.datas = datas;
 		this.definedCost = definedCost;
 		this.classIncludeTeacher = classIncludeTeacher;
+
+		this.needLessons = needLessons;
+		this.lessonNum = lessonNum;
+		this.classNum = classNum;
+		this.everyWeek = everyWeek;
+
 	}
 
 	public void initGroup() {
 
-		boolean visited[] = new boolean[needLessons];
+		boolean visited[] = new boolean[everyWeek.length];
 
 		for (int i = 0; i < classIncludeTeacher.size(); i++) {// 换班级
 			ArrayList<Integer> teacherIndex = classIncludeTeacher.get(i);
 
-			for (int k = 0; k < visited.length; k++) {
-				visited[k] = false;
+			for (int k = 0; k < everyWeek.length; k++) {
+				visited[k] = everyWeek[k];
 			}
 			for (int t = 0; t < teacherIndex.size(); t++) {// 换班级中的老师
 				allData myTeacher = datas.get(teacherIndex.get(t));
@@ -265,9 +271,13 @@ public class SA {
 	public void printSheet(int sheet[][]) {
 		for (int j = 0; j < needLessons; j++) {
 			System.out.print((j) + " ");
-			for (int i = 0; i < 15; i++) {
-				System.out.printf("%s\t", datas.get(sheet[i][j]).teacherName);
+			if(everyWeek[j]==false){
+				
+				for (int i = 0; i < 15; i++) {
+					System.out.printf("%s\t", datas.get(sheet[i][j]).teacherName);
 
+				}
+				
 			}
 			System.out.println();
 		}
@@ -344,7 +354,7 @@ public class SA {
 
 	}
 
-	public void solve() throws Myexception {
+	public ResultType solve() throws Myexception {
 		// printSheet(sheetInfor);
 
 		copyGh(datas, sheetInfor, bestResult);
@@ -387,12 +397,12 @@ public class SA {
 
 				} else {
 					noConflict = false;
-//					try {
-						dealConflict(beginResult, tempResult, index);
-//					} catch (Myexception e) {
-//						// TODO Auto-generated catch block
-//						e.printMsg();
-//					}
+					// try {
+					dealConflict(beginResult, tempResult, index);
+					// } catch (Myexception e) {
+					// // TODO Auto-generated catch block
+					// e.printMsg();
+					// }
 				}
 
 				tempCost = tempResult.getCost(definedCost);
@@ -417,7 +427,7 @@ public class SA {
 			t = a * t;
 			k++;
 		}
-		// printSheet(bestResult.sheetInfor);
+		printSheet(bestResult.sheetInfor);
 		// printConflict(beginResult.datas);
 		// checkResult(bestResult);
 
@@ -429,25 +439,28 @@ public class SA {
 		// System.out.print(tempCostflu.get(i)+"=>");
 		// }
 		// System.out.println();
-		SimpleDateFormat s=new SimpleDateFormat("YYYYMMdd-HHmmss");
-		String date=s.format(new Date());
-//		new Thread(new WriteData(tempCostflu, "C:\\SALog\\改进的sa\\tempcost-"+date+".txt")).start();
-//		new Thread(new WriteData(bestCostflu, "C:\\SALog\\改进的sa\\bestcost-"+date+".txt")).start();
-		double runtime=System.currentTimeMillis()-Mytime.start;
-		ArrayList<Double>parm=new ArrayList<>();
+		SimpleDateFormat s = new SimpleDateFormat("YYYYMMdd-HHmmss");
+		String date = s.format(new Date());
+		// new Thread(new WriteData(tempCostflu,
+		// "C:\\SALog\\改进的sa\\tempcost-"+date+".txt")).start();
+		// new Thread(new WriteData(bestCostflu,
+		// "C:\\SALog\\改进的sa\\bestcost-"+date+".txt")).start();
+		double runtime = System.currentTimeMillis() - Mytime.start;
+		ArrayList<Double> parm = new ArrayList<>();
 		parm.add(runtime);
-//		new Thread(new WriteData(parm, "C:\\SALog\\改进的sa\\runTime-"+date+".txt")).start();;
-		if(bestCostflu.size()==0){
+		// new Thread(new WriteData(parm,
+		// "C:\\SALog\\改进的sa\\runTime-"+date+".txt")).start();;
+		if (bestCostflu.size() == 0) {
 			System.out.println("无解");
-		}else{
+		} else {
 			System.out.println(
 					"best cost information:" + bestCostflu.size() + "    " + bestCostflu.get(bestCostflu.size() - 1));
 			for (int i = 0; i < bestCostflu.size(); i++) {
 				System.out.print(bestCostflu.get(i) + "=>");
 			}
 		}
-		
 
+		return bestResult;
 		// System.out.println("final cost= "+bestResult.getCost(definedCost));
 		// printConflict(tempResult.datas);
 	}
@@ -496,7 +509,7 @@ public class SA {
 
 	}
 
-	public void copyGh(ArrayList<allData> temp, int[][] sheetInfor, ResultType result) {
+	public void copyGh(List<allData> temp, int[][] sheetInfor, ResultType result) {
 		result.datas = new ArrayList<>(temp);
 		result.sheetInfor = new int[sheetInfor.length][sheetInfor[0].length];
 		for (int i = 0; i < sheetInfor.length; i++) {
@@ -555,13 +568,16 @@ public class SA {
 				// 获得每个冲突班级的老师
 
 				for (int x = 0; x < needLessons; x++) {
-					if (!tData.weekY.contains(x)) {
+					if (everyWeek[x] == false) {
+						if (!tData.weekY.contains(x)) {
 
-						if (!datas.get(sheet[c][x]).weekY.contains(onelessonCon)) {
-							allowedLesson.add(x);
+							if (!datas.get(sheet[c][x]).weekY.contains(onelessonCon)) {
+								allowedLesson.add(x);
+							}
+
 						}
-
 					}
+
 				}
 
 				if (allowedLesson.size() != 0) {
@@ -823,10 +839,12 @@ public class SA {
 		ArrayList<Integer> allowed = new ArrayList<>();
 
 		for (int i = 0; i < needLessons; i++) {
-			if (!tData.weekY.contains(i)) {
+			if (everyWeek[i] == false) {
+				if (!tData.weekY.contains(i)) {
 
-				if (!myDatas.get(sheet[c][i]).weekY.contains(timeY)) {
-					allowed.add(i);
+					if (!myDatas.get(sheet[c][i]).weekY.contains(timeY)) {
+						allowed.add(i);
+					}
 				}
 			}
 
@@ -1045,11 +1063,11 @@ public class SA {
 			}
 		}
 
-		if (myDatas.get(t1).courseIndex == 3 && l2 % lessonNum != 6) {
+		if (myDatas.get(t1).courseIndex == 3 && l2 % lessonNum != lessonNum - 1) {
 			return false;
 		}
 
-		if (myDatas.get(t2).courseIndex == 3 && l1 % lessonNum != 6) {
+		if (myDatas.get(t2).courseIndex == 3 && l1 % lessonNum != lessonNum - 1) {
 			return false;
 		}
 
@@ -1065,8 +1083,15 @@ public class SA {
 		int c2 = c1;
 
 		int l1 = random.nextInt(needLessons);
+		while (everyWeek[l1]) {
+			l1 = random.nextInt(needLessons);
+		}
 		int l2 = random.nextInt(needLessons);
-		if (l1 == l2) {
+		while (everyWeek[l2]) {
+			l2 = random.nextInt(needLessons);
+		}
+
+		while (everyWeek[l2] || l1 == l2) {
 			l2 = random.nextInt(needLessons);
 		}
 
@@ -1079,7 +1104,7 @@ public class SA {
 				break;
 			} else {
 				l2 = random.nextInt(needLessons);
-				if (l1 == l2) {
+				while (everyWeek[l2] || l1 == l2) {
 					l2 = random.nextInt(needLessons);
 				}
 			}

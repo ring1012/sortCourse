@@ -42,76 +42,78 @@
 					})
 
 	$(function() {
-		$('#btnConfirm').click(function() {
-			var milasUrl = {};//新建对象，用来存储所有数据
-			var count = 0;
-			var subMilasUrlArr = {};//存储每一行数据
-			var tableData = {};
-			$("#tab tr").each(function(trindex, tritem) {//遍历每一行
-				tableData[trindex] = new Array();
-				$(tritem).find("input").each(function(tdindex, tditem) {
-					tableData[trindex][tdindex] = $(tditem).val();//遍历每一个数据，并存入
-					if ($(tditem).is(':checked')) {
-						count++;
+		$('#btnConfirm').click(
+				function() {
+					var milasUrl = {};//新建对象，用来存储所有数据
+					var count = 0;
+					var subMilasUrlArr = {};//存储每一行数据
+					var tableData = {};
+					$("#tab tr").each(function(trindex, tritem) {//遍历每一行
+						tableData[trindex] = new Array();
+						$(tritem).find("input").each(function(tdindex, tditem) {
+							tableData[trindex][tdindex] = $(tditem).val();//遍历每一个数据，并存入
+							if ($(tditem).is(':checked')) {
+								count++;
+							}
+							subMilasUrlArr[trindex] = tableData[trindex];//将每一行的数据存入
+						});
+					});
+					for ( var key in subMilasUrlArr) {
+						milasUrl[key] = subMilasUrlArr[key];//将每一行存入对象
 					}
-					subMilasUrlArr[trindex] = tableData[trindex];//将每一行的数据存入
-				});
-			});
-			for ( var key in subMilasUrlArr) {
-				milasUrl[key] = subMilasUrlArr[key];//将每一行存入对象
-			}
-			var vaildate=true;
-			if($(".classNum").val()==""){
-				alert("班级数目不能为空")
-				return false;
-			}
-			if($(".morning").val()==""){
-				alert("年级信息不能为空")
-				return false;
-			}
-			if($(".afternoon").val()==""){
-				alert("年级信息不能为空")
-				return false;
-			}
-			if($(".saturday").val()==""){
-				alert("年级信息不能为空")
-				return false;
-			}
-			if($(".sunday").val()==""){
-				alert("年级信息不能为空")
-				return false;
-			}
-			if(count!=$(".classNum").val()){
-				alert("班级数目与班主任老师数目不符")
-				return false;
-			}
-			var everyRow = {};
-			for(var key in milasUrl){
-				everyRow[key]=milasUrl[key];
-				for(var one in everyRow[key]){
-					if(everyRow[key][one]==""){
-						alert("第"+key+"行"+"第"+(parseInt(one)+1)+"列不能为空")
+					var vaildate = true;
+					if ($(".classNum").val() == "") {
+						alert("班级数目不能为空")
 						return false;
 					}
-				}
-			}
-			var sum1=0;
-			for(var key in milasUrl){
-				everyRow[key]=milasUrl[key];
-				sum1+=everyRow[key][2]*everyRow[key][3];
-			}	
-			var mNum=parseInt($(".morning").val());
-			var aNum=parseInt($(".afternoon").val());
-			var saNum=parseInt($(".saturday").val());
-			var suNum=parseInt($(".sunday").val());
-			var sum2=count*(5*(mNum+aNum)+saNum+suNum);
-			if(sum1!=sum2){
-				alert("年级信息显示的课时总数目与教师总课时数目不相等")
-				return false;
-			}
-			
-			$('form').submit();
-		})
+					if ($(".morning").val() == "") {
+						alert("年级信息不能为空")
+						return false;
+					}
+					if ($(".afternoon").val() == "") {
+						alert("年级信息不能为空")
+						return false;
+					}
+					if ($(".saturday").val() == "") {
+						alert("年级信息不能为空")
+						return false;
+					}
+					if ($(".sunday").val() == "") {
+						alert("年级信息不能为空")
+						return false;
+					}
+					if (count != $(".classNum").val()) {
+						alert("班级数目与班主任老师数目不符")
+						return false;
+					}
+					var everyRow = {};
+					for ( var key in milasUrl) {
+						everyRow[key] = milasUrl[key];
+						for ( var one in everyRow[key]) {
+							if (everyRow[key][one] == "") {
+								alert("第" + key + "行" + "第"
+										+ (parseInt(one) + 1) + "列不能为空")
+								return false;
+							}
+						}
+					}
+					var sum1 = 0;
+					for ( var key in milasUrl) {
+						everyRow[key] = milasUrl[key];
+						sum1 += everyRow[key][2] * everyRow[key][3];
+					}
+					var mNum = parseInt($(".morning").val());
+					var aNum = parseInt($(".afternoon").val());
+					var saNum = parseInt($(".saturday").val());
+					var suNum = parseInt($(".sunday").val());
+					var sum2 = count * (5 * (mNum + aNum) + saNum + suNum);
+					if (sum1 != sum2) {
+						alert("年级信息显示的课时总数目与教师总课时数目不相等")
+						return false;
+					}
+
+					$('form').submit();
+				})
 
 	})
 
@@ -132,19 +134,22 @@
 </head>
 <body>
 	<div class="container">
-	<br/>
+		<br />
 		<h3 class="text-center">年级信息</h3>
-		<form action="/sortCourse/deal.action" method="post" class="documentForm">
-		班级数目:<input type="number" name="classNum" class="classNum"  min='1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		上午几节课:<input type="number" name="morning" class="morning" min='1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		下午几节课:<input type="number" name="afternoon" class="afternoon" min='1'>
-		<br/><br/>
-		周六一共几节课:<input type="number" name="saturday" class="saturday" min='0' value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-		周日一共几节课:<input type="number" name="sunday" class="sunday" min='0' value="0">
+		<form action="/sortCourse/deal.action" method="post"
+			class="documentForm">
+			班级数目:<input type="number" name="classNum" class="classNum" min='1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			上午几节课:<input type="number" name="morning" class="morning" min='1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			下午几节课:<input type="number" name="afternoon" class="afternoon" min='1'>
+			<br /> <br /> 周六一共几节课:<input type="number" name="saturday"
+				class="saturday" min='0' value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			周日一共几节课:<input type="number" name="sunday" class="sunday" min='0'
+				value="0">
 		</form>
-		
+
 		<h3 class="text-center">教师信息</h3>
-		<form action="/sortCourse/deal.action" method="post" class="documentForm">
+		<form action="/sortCourse/deal.action" method="post"
+			class="documentForm">
 			<table id="tab" border="1"
 				class="table table-hover table-striped table-bordered">
 				<tr>
@@ -157,18 +162,22 @@
 					<td>操作</td>
 				</tr>
 			</table>
-			<div class="row text-center	">
-				<div class="col-xs-6">
-					<button type="button" class="btn btn-primary btn-lg" id="but">增加</button>
-				</div>
-				<div class="col-xs-6">
-					<button type="button" class="btn btn-danger btn-lg" id="btnConfirm"
-						style="aligen: center">提交</button>
-				</div>
+			<table>
+				<tr>
+					<td align="center"><button type="button"
+							class="btn btn-primary btn-lg" id="but">增加</button></td>
+							<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+					<td align="center">
+						<button type="button" class="btn btn-danger btn-lg"
+							id="btnConfirm" style="aligen: center">提交</button>
+					</td>
+				</tr>
 
-			</div>
+
+			</table>
 
 		</form>
+		<br/>
 		<a href="/sortCourse/simulator.action">模拟数据</a>
 	</div>
 </body>

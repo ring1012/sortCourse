@@ -8,12 +8,16 @@ public class Teacher {
 	private int perWeekClassNum;
 	private int perWeekTimeNum;
 	private boolean IsHead;
-	private List<Teacher>teachers;
-	public List<Teacher> getTeachers() {
-		return teachers;
-	}
-	public void setTeachers(List<Teacher> teachers) {
-		this.teachers = teachers;
+	
+	public Teacher(){}
+	
+	public Teacher(String teacherName, String courseName, int perWeekClassNum, int perWeekTimeNum, boolean isHead) {
+		super();
+		this.teacherName = teacherName;
+		this.courseName = courseName;
+		this.perWeekClassNum = perWeekClassNum;
+		this.perWeekTimeNum = perWeekTimeNum;
+		IsHead = isHead;
 	}
 	public String getTeacherName() {
 		return teacherName;

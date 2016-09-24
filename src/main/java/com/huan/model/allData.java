@@ -23,4 +23,19 @@ public class allData {
 		conflictCells=new ArrayList<Position>();
 		connectCells=new ArrayList<>();
 	}
+	public allData(String teacherName, String courseName, int perWeekClassNum, int perWeekTimeNum, boolean isHead) {
+		super();
+		this.teacherName = teacherName;
+		this.courseName = courseName;
+		this.perWeekClassNum = perWeekClassNum;
+		this.perWeekTimeNum = perWeekTimeNum;
+		IsHead = isHead;
+		classes=new ArrayList<Integer>();
+		arrangeCells=new ArrayList<Position>();
+		weekY=new ArrayList<Integer>();
+		conflictCells=new ArrayList<Position>();
+		connectCells=new ArrayList<>();
+	}
+	
+	
 }

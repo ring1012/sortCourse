@@ -18,6 +18,7 @@
 	$(document)
 			.ready(
 					function() {
+						//$("input").attr("readonly",true);
 						//<tr/>居中
 						$("#tab tr").attr("align", "center");
 
@@ -139,7 +140,7 @@
 	<div class="container">
 
 		<br />
-		
+
 
 		<form action="/sortCourse/deal.action" method="post"
 			class="documentForm" target="_blank">
@@ -153,9 +154,9 @@
 				class="saturday" min='0' value="4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			周日一共几节课:<input type="number" name="sunday" class="sunday" min='0'
 				value="0">
-			
-			
-		<h3 class="text-center">教师信息</h3>
+
+
+			<h3 class="text-center">教师信息</h3>
 			<table id="tab" border="1"
 				class="table table-hover table-striped table-bordered">
 				<tr>
@@ -165,7 +166,6 @@
 					<td>任教班级数目</td>
 					<td>每周每班课时数目</td>
 					<td>是否班主任</td>
-					<td>操作</td>
 				</tr>
 
 				<%
@@ -173,7 +173,7 @@
 
 					for (int k = 0; k < teachers.size(); k++) {
 				%>
-				<tr id="<%=(k+1) %>"> 
+				<tr id="<%=(k + 1)%>">
 					<td><%=(k + 1)%></td>
 					<td><input type="text" name="teacherName"
 						value=<%=teachers.get(k).getTeacherName()%>></td>
@@ -195,22 +195,19 @@
 					<%
 						}
 					%>
-					<td><a href="#" onclick="deltr(<%=(k + 1)%>)">删除</a></td>
 				</tr>
 				<%
 					}
 				%>
 			</table>
-			<div class="row text-center	">
-				<div class="col-xs-6">
-					<button type="button" class="btn btn-primary btn-lg" id="but">增加</button>
-				</div>
-				<div class="col-xs-6">
+			<table>
+				<td align="center"></td>
+				<td align="center">
 					<button type="button" class="btn btn-danger btn-lg" id="btnConfirm"
 						style="aligen: center">提交</button>
-				</div>
+				</td>
+			</table>
 
-			</div>
 
 		</form>
 	</div>
