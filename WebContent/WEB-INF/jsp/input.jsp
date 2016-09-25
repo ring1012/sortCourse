@@ -6,9 +6,13 @@
 <head>
 <link href="${ctx}/Resources/css/bootstrap.min.css" rel="stylesheet"
 	type="text/css">
+	<link href="${ctx}/Resources/css/jquery-ui-1.9.2.custom.min.css" rel="stylesheet"
+	type="text/css">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <script type="text/javascript"
 	src="${ctx}/Resources/js/jquery/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript"
+	src="${ctx}/Resources/js/jquery/jquery-ui-1.9.2.custom.min.js"></script>
 <title>输入信息</title>
 </head>
 <script>
@@ -137,7 +141,7 @@
 		<br />
 		<h3 class="text-center">年级信息</h3>
 		<form action="/sortCourse/deal.action" method="post"
-			class="documentForm">
+			class="documentForm" target="_blank">
 			班级数目:<input type="number" name="classNum" class="classNum" min='1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			上午几节课:<input type="number" name="morning" class="morning" min='1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			下午几节课:<input type="number" name="afternoon" class="afternoon" min='1'>
@@ -145,11 +149,9 @@
 				class="saturday" min='0' value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 			周日一共几节课:<input type="number" name="sunday" class="sunday" min='0'
 				value="0">
-		</form>
 
 		<h3 class="text-center">教师信息</h3>
-		<form action="/sortCourse/deal.action" method="post"
-			class="documentForm">
+		
 			<table id="tab" border="1"
 				class="table table-hover table-striped table-bordered">
 				<tr>
@@ -171,6 +173,11 @@
 						<button type="button" class="btn btn-danger btn-lg"
 							id="btnConfirm" style="aligen: center">提交</button>
 					</td>
+					<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+					<td align="center">
+						<button type="button" class="btn btn-danger btn-lg"
+							 style="aligen: center"><a href="/sortCourse/simulator.action">模拟数据</a></button>
+					</td>
 				</tr>
 
 
@@ -178,7 +185,7 @@
 
 		</form>
 		<br/>
-		<a href="/sortCourse/simulator.action">模拟数据</a>
+		
 	</div>
 </body>
 </html>

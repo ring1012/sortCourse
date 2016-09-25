@@ -18,7 +18,7 @@
 	$(document)
 			.ready(
 					function() {
-						//$("input").attr("readonly",true);
+						$("input").attr("readonly",true);
 						//<tr/>居中
 						$("#tab tr").attr("align", "center");
 

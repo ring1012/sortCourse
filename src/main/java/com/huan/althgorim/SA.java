@@ -30,12 +30,12 @@ public class SA {
 	public int[][] sheetInfor;
 	public List<allData> datas;
 	public ArrayList<Integer[]> definedCost;
-	public ResultType bestResult = new ResultType();
+	public ResultType bestResult;
 	public double minCost = 99999999;
 	public double tempCost;
 	public double mycost;
-	public ResultType tempResult = new ResultType();
-	public ResultType beginResult = new ResultType();
+	public ResultType tempResult ;
+	public ResultType beginResult ;
 	public ArrayList<ArrayList<Integer>> classIncludeTeacher;
 	public int classNum;
 	public boolean everyWeek[];
@@ -86,7 +86,11 @@ public class SA {
 		this.lessonNum = lessonNum;
 		this.classNum = classNum;
 		this.everyWeek = everyWeek;
+		
+		bestResult=new ResultType(classNum, lessonNum, everyWeek);
 
+		this.tempResult=new ResultType(classNum,lessonNum,everyWeek);
+		this.beginResult=new ResultType(classNum,lessonNum,everyWeek);
 	}
 
 	public void initGroup() {
@@ -273,7 +277,7 @@ public class SA {
 			System.out.print((j) + " ");
 			if(everyWeek[j]==false){
 				
-				for (int i = 0; i < 15; i++) {
+				for (int i = 0; i < classNum; i++) {
 					System.out.printf("%s\t", datas.get(sheet[i][j]).teacherName);
 
 				}
@@ -427,7 +431,7 @@ public class SA {
 			t = a * t;
 			k++;
 		}
-		printSheet(bestResult.sheetInfor);
+		
 		// printConflict(beginResult.datas);
 		// checkResult(bestResult);
 
@@ -459,8 +463,11 @@ public class SA {
 				System.out.print(bestCostflu.get(i) + "=>");
 			}
 		}
-
-		return bestResult;
+		if(noConflict==true){
+			printSheet(bestResult.sheetInfor);
+			return bestResult;
+		}
+		else return null;
 		// System.out.println("final cost= "+bestResult.getCost(definedCost));
 		// printConflict(tempResult.datas);
 	}

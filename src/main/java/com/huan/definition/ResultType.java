@@ -9,8 +9,9 @@ public class ResultType {
 
 	public ArrayList<allData> datas;
 	public int[][] sheetInfor;
-	public int classNum = 15;
-	public int lessonNum = 7;
+	public int classNum;
+	public int lessonNum;
+	public boolean everyWeek[];
 	public static final double conflictCost=1000.0;
 	public static final double connectCost=50.0;
 	public double sumCost;
@@ -30,6 +31,13 @@ public class ResultType {
 		
 	}
 	
+	
+	public ResultType(int classNum, int lessonNum, boolean[] everyWeek) {
+		super();
+		this.classNum = classNum;
+		this.lessonNum = lessonNum;
+		this.everyWeek = everyWeek;
+	}
 	public double getCost(ArrayList<Integer[]> definedCost){
 		double sum=0,p1=0,p2=0,p3=0;
 		for(int i=0;i<datas.size();i++){
