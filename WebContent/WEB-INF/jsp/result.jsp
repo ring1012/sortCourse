@@ -22,7 +22,12 @@
 <title>排课结果</title>
 
 <style type="text/css">
-#myOper {width:120px;  position:fixed;right:0%;top:10%;}
+#myOper {
+	width: 120px;
+	position: fixed;
+	right: 0%;
+	top: 10%;
+}
 </style>
 </head>
 <script>
@@ -32,72 +37,111 @@
 		});
 	});
 
-	function allowDrop(ev) {
+
+	var classNums;
+	var lessonNums;
+	$(document).ready(function() {
+		classNums = $("tr[id='rooms'] td").length-1;
+		lessonNums=<%=request.getParameter("result")%>;
+		
+	})
+
+		function allowDrop(ev) {
 		ev.preventDefault();
 	}
 
+	var changeStr=new Array(classNums);
+	
 	function drop(ev) {
+		
 		ev.preventDefault();
 		var dropPosotion = new Array(2);
 		dropStr = ev.target.className;
-		dropPosotion=dropStr.split(" ");
-		
+		dropPosotion = dropStr.split(" ");
+
 		var dragPosition = new Array(2)
-		dragStr=ev.dataTransfer.getData("Text");
-		dragPosition=dragStr.split(" ");
+		dragStr = ev.dataTransfer.getData("Text");
+		dragPosition = dragStr.split(" ");
 		if (dragPosition[0] != dropPosotion[0]) {
 			alert("不允许跨班级");
 		} else if (dragPosition[1] != dropPosotion[1]) {
-			var dragTag="[class='" + dragPosition[0] + " " + dragPosition[1]+"']";
-			var dropTag="[class='" + dropPosotion[0] + " " + dropPosotion[1]+"']";
-			temp0=$("body").find(dragTag).eq(0).html();
-			temp1=$("body").find(dragTag).eq(1).html();
-			$("body").find(dragTag).eq(0).html($("body").find(dropTag).eq(0).html());
-			$("body").find(dragTag).eq(1).html($("body").find(dropTag).eq(1).html());
+			var dragTag = "[class='" + dragPosition[0] + " " + dragPosition[1]
+					+ "']";
+			var dropTag = "[class='" + dropPosotion[0] + " " + dropPosotion[1]
+					+ "']";
+			temp0 = $("body").find(dragTag).eq(0).html();
+			temp1 = $("body").find(dragTag).eq(1).html();
+			$("body").find(dragTag).eq(0).html(
+					$("body").find(dropTag).eq(0).html());
+			$("body").find(dragTag).eq(1).html(
+					$("body").find(dropTag).eq(1).html());
 			$("body").find(dropTag).eq(0).html(temp0);
 			$("body").find(dropTag).eq(1).html(temp1);
+			changeStr[dragPosition[0]]+=dragPosition[1]+"="+dropPosotion[1];
 		}
-
-		// 	 alert(ev.dataTransfer.getData("names"));
-		//  ev.target.appendChild(document.getElementById(data));
 	}
 
 	function drag(ev) {
 		ev.dataTransfer.setData("Text", ev.target.className);
 	}
-	var fix=false;
-	
-	function fixSite(){
-		fix=true;
-		$("td").css({cursor:"pointer"});
+	var fix = false;
+	var fixTable=new Array()();
+	function fixSite() {
+		fix = true;
+		$("td").css({
+			cursor : "pointer"
+		});
 	}
-	function cancelFix(){
-		fix=false;
-		$("td").css({cursor:"auto"});
-		
+	function cancelFix() {
+		fix = false;
+		$("td").css({
+			cursor : "auto"
+		});
+
 	}
-	
-	function fixCell(ev){
-		if(fix==true){
+
+	function fixCell(ev) {
+		if (fix == true) {
 			var position = new Array(2);
 			positionStr = ev.target.className;
-			position=positionStr.split(" ");
-			var tag="[class='" + position[0] + " " + position[1]+"']";
-			$("body").find(tag).eq(0).attr("style","background:red");
-			$("body").find(tag).eq(1).attr("style","background:red");
+			position = positionStr.split(" ");
+			var tag = "[class='" + position[0] + " " + position[1] + "']";
+			$("body").find(tag).eq(0).attr("style", "background:red");
+			$("body").find(tag).eq(1).attr("style", "background:red");
+		}else{
+			var position = new Array(2);
+			positionStr = ev.target.className;
+			position = positionStr.split(" ");
+			var tag = "[class='" + position[0] + " " + position[1] + "']";
+			$("body").find(tag).eq(0).attr("style", "background:white");
+			$("body").find(tag).eq(1).attr("style", "background:white");
 		}
 	}
-	
-	
+
+	$(function() {
+		$('#btnConfirm').click(function() {
+
+			$('form').submit();
+		})
+
+	})
 </script>
 <body>
 
-<div id="myOper">
-<button type="button" class="btn btn-info btn-lg"
-							 style="aligen: center" onclick="fixSite()">固定位置</a></button>
-<button type="button" class="btn btn-info btn-lg"
-							 style="aligen: center" onclick="cancelFix()">取消固定</a></button>
-</div>
+	<div id="myOper">
+		<button type="button" class="btn btn-info btn-lg"
+			style="aligen: center" onclick="fixSite()">
+			固定位置</a>
+		</button>
+		<button type="button" class="btn btn-info btn-lg"
+			style="aligen: center" onclick="cancelFix()">
+			取消固定</a>
+		</button>
+		<button type="button" class="btn btn-info btn-lg"
+			style="aligen: center" id="btnConfirm">
+			提交</a>
+		</button>
+	</div>
 	<div id="accordion" class="container">
 		<%
 			Object result = request.getAttribute("result");
@@ -127,7 +171,7 @@
 		<div>
 			<table id="tab" border="1"
 				class="table table-hover table-striped table-bordered">
-				<tr>
+				<tr id="rooms">
 					<td></td>
 					<%
 						for (int i = 0; i < classNum; i++) {
@@ -154,7 +198,7 @@
 						for (int i = 0; i < classNum; i++) {
 									if (everyWeek[j] == false) {
 					%>
-					<td class="<%=String.format("%d %d",i,j)%>" draggable="true"
+					<td class="<%=String.format("%d %d", i, j)%>" draggable="true"
 						ondragstart="drag(event)" ondrop="drop(event)"
 						ondragover="allowDrop(event)" onclick="fixCell(event)"><%=datas.get(sheet[i][j]).teacherName%></td>
 					<%
@@ -209,7 +253,7 @@
 						for (int i = 0; i < classNum; i++) {
 									if (everyWeek[j] == false) {
 					%>
-					<td class="<%=String.format("%d %d",i,j)%>" draggable="true"
+					<td class="<%=String.format("%d %d", i, j)%>" draggable="true"
 						ondragstart="drag(event)" ondrop="drop(event)"
 						ondragover="allowDrop(event)" onclick="fixCell(event)"><%=datas.get(sheet[i][j]).courseName%></td>
 					<%
