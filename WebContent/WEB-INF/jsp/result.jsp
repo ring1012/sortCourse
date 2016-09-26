@@ -20,19 +20,86 @@
 <script type="text/javascript"
 	src="${ctx}/Resources/js/jquery/jquery-ui-1.9.2.custom.min.js"></script>
 <title>排课结果</title>
+
+<style type="text/css">
+#myOper {width:120px;  position:fixed;right:0%;top:10%;}
+</style>
 </head>
- <script>
- $(function() {
-	    $( "#accordion" ).accordion({
-	      collapsible: true
-	    });
-	  });
-  </script>
+<script>
+	$(function() {
+		$("#accordion").accordion({
+			collapsible : true
+		});
+	});
+
+	function allowDrop(ev) {
+		ev.preventDefault();
+	}
+
+	function drop(ev) {
+		ev.preventDefault();
+		var dropPosotion = new Array(2);
+		dropStr = ev.target.className;
+		dropPosotion=dropStr.split(" ");
+		
+		var dragPosition = new Array(2)
+		dragStr=ev.dataTransfer.getData("Text");
+		dragPosition=dragStr.split(" ");
+		if (dragPosition[0] != dropPosotion[0]) {
+			alert("不允许跨班级");
+		} else if (dragPosition[1] != dropPosotion[1]) {
+			var dragTag="[class='" + dragPosition[0] + " " + dragPosition[1]+"']";
+			var dropTag="[class='" + dropPosotion[0] + " " + dropPosotion[1]+"']";
+			temp0=$("body").find(dragTag).eq(0).html();
+			temp1=$("body").find(dragTag).eq(1).html();
+			$("body").find(dragTag).eq(0).html($("body").find(dropTag).eq(0).html());
+			$("body").find(dragTag).eq(1).html($("body").find(dropTag).eq(1).html());
+			$("body").find(dropTag).eq(0).html(temp0);
+			$("body").find(dropTag).eq(1).html(temp1);
+		}
+
+		// 	 alert(ev.dataTransfer.getData("names"));
+		//  ev.target.appendChild(document.getElementById(data));
+	}
+
+	function drag(ev) {
+		ev.dataTransfer.setData("Text", ev.target.className);
+	}
+	var fix=false;
+	
+	function fixSite(){
+		fix=true;
+		$("td").css({cursor:"pointer"});
+	}
+	function cancelFix(){
+		fix=false;
+		$("td").css({cursor:"auto"});
+		
+	}
+	
+	function fixCell(ev){
+		if(fix==true){
+			var position = new Array(2);
+			positionStr = ev.target.className;
+			position=positionStr.split(" ");
+			var tag="[class='" + position[0] + " " + position[1]+"']";
+			$("body").find(tag).eq(0).attr("style","background:red");
+			$("body").find(tag).eq(1).attr("style","background:red");
+		}
+	}
+	
+	
+</script>
 <body>
 
-
-<div id="accordion" class="container">
-<%
+<div id="myOper">
+<button type="button" class="btn btn-info btn-lg"
+							 style="aligen: center" onclick="fixSite()">固定位置</a></button>
+<button type="button" class="btn btn-info btn-lg"
+							 style="aligen: center" onclick="cancelFix()">取消固定</a></button>
+</div>
+	<div id="accordion" class="container">
+		<%
 			Object result = request.getAttribute("result");
 
 			if (result == null) {
@@ -56,122 +123,124 @@
 		%>
 
 
-  <h3>年级老师-结果</h3>
-  <div>
-    <table id="tab" border="1"
-			class="table table-hover table-striped table-bordered">
-			<tr>
-				<td></td>
-				<%
-					for (int i = 0; i < classNum; i++) {
-				%>
-				<td><%=String.format("%d 班", i + 1)%></td>
-				<%
-					}
-				%>
+		<h3>年级老师-结果</h3>
+		<div>
+			<table id="tab" border="1"
+				class="table table-hover table-striped table-bordered">
+				<tr>
+					<td></td>
+					<%
+						for (int i = 0; i < classNum; i++) {
+					%>
+					<td><%=String.format("%d 班", i + 1)%></td>
+					<%
+						}
+					%>
 
-			</tr>
-			<%
-				for (int j = 0; j < needLessons; j++) {
-						if (j % lessonNum == 0) {
-			%>
-			<tr>
-				<td rowspan="<%=(lessonNum + 1)%>">星期<%=indexMap.get(j / lessonNum + 1)%></td>
-			</tr>
-			<%
-				}
-			%>
-			<tr>
-
+				</tr>
 				<%
-					for (int i = 0; i < classNum; i++) {
-								if (everyWeek[j] == false) {
+					for (int j = 0; j < needLessons; j++) {
+							if (j % lessonNum == 0) {
 				%>
-				<td><%=datas.get(sheet[i][j]).teacherName%></td>
-				<%
-					} else {
-				%>
-				<td></td>
+				<tr>
+					<td rowspan="<%=(lessonNum + 1)%>">星期<%=indexMap.get(j / lessonNum + 1)%></td>
+				</tr>
 				<%
 					}
 				%>
+				<tr>
+
+					<%
+						for (int i = 0; i < classNum; i++) {
+									if (everyWeek[j] == false) {
+					%>
+					<td class="<%=String.format("%d %d",i,j)%>" draggable="true"
+						ondragstart="drag(event)" ondrop="drop(event)"
+						ondragover="allowDrop(event)" onclick="fixCell(event)"><%=datas.get(sheet[i][j]).teacherName%></td>
+					<%
+						} else {
+					%>
+					<td></td>
+					<%
+						}
+					%>
 
 
 
 
+					<%
+						}
+					%>
+
+					<%
+						}
+					%>
+				
+			</table>
+		</div>
+		<h3>年级课程-结果</h3>
+		<div>
+			<table id="tab" border="1"
+				class="table table-hover table-striped table-bordered">
+				<tr>
+					<td></td>
+					<%
+						for (int i = 0; i < classNum; i++) {
+					%>
+					<td><%=String.format("%d 班", i + 1)%></td>
+					<%
+						}
+					%>
+
+				</tr>
+				<%
+					for (int j = 0; j < needLessons; j++) {
+							if (j % lessonNum == 0) {
+				%>
+				<tr>
+					<td rowspan="<%=(lessonNum + 1)%>">星期<%=indexMap.get(j / lessonNum + 1)%></td>
+				</tr>
 				<%
 					}
 				%>
+				<tr>
 
-				<%
-					}
-				%>
-
-
-			
-		</table>
-  </div>
-  <h3>年级课程-结果</h3>
-  <div>
-   <table id="tab" border="1"
-			class="table table-hover table-striped table-bordered">
-			<tr>
-				<td></td>
-				<%
-					for (int i = 0; i < classNum; i++) {
-				%>
-				<td><%=String.format("%d 班", i + 1)%></td>
-				<%
-					}
-				%>
-
-			</tr>
-			<%
-				for (int j = 0; j < needLessons; j++) {
-						if (j % lessonNum == 0) {
-			%>
-			<tr>
-				<td rowspan="<%=(lessonNum + 1)%>">星期<%=indexMap.get(j / lessonNum + 1)%></td>
-			</tr>
-			<%
-				}
-			%>
-			<tr>
-
-				<%
-					for (int i = 0; i < classNum; i++) {
-								if (everyWeek[j] == false) {
-				%>
-				<td><%=datas.get(sheet[i][j]).courseName%></td>
-				<%
-					} else {
-				%>
-				<td></td>
-				<%
-					}
-				%>
+					<%
+						for (int i = 0; i < classNum; i++) {
+									if (everyWeek[j] == false) {
+					%>
+					<td class="<%=String.format("%d %d",i,j)%>" draggable="true"
+						ondragstart="drag(event)" ondrop="drop(event)"
+						ondragover="allowDrop(event)" onclick="fixCell(event)"><%=datas.get(sheet[i][j]).courseName%></td>
+					<%
+						} else {
+					%>
+					<td></td>
+					<%
+						}
+					%>
 
 
 
 
-				<%
-					}
-				%>
+					<%
+						}
+					%>
 
-				<%
-					}
-				%>
+					<%
+						}
+					%>
 
 
-				<%
-					}
-				%>
-			
-		</table>
-		
-  </div>
-  <br/>	<br/>	<br/>	<br/>	<br/>
-</div>
+					<%
+						}
+					%>
+				
+			</table>
+
+		</div>
+		<br /> <br /> <br /> <br /> <br />
+	</div>
 
 </body>
 </html>

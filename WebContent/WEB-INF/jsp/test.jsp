@@ -2,42 +2,46 @@
 	pageEncoding="UTF-8"%>
 <%@ include file="taglibs.jsp"%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-
 <html>
 <head>
+<style type="text/css">
+#div1,#div2 {
+	width: 488px;
+	height: 70px;
+	padding: 10px;
+	border: 1px solid #aaaaaa;
+}
+</style>
 <script type="text/javascript"
 	src="${ctx}/Resources/js/jquery/jquery-1.9.1.min.js"></script>
-<script>
-	$(document).ready(function() {
-		$("p").click(function() {
-			$(this).hide();
-		});
-	});
+<script type="text/javascript">
+	function allowDrop(ev) {
+		ev.preventDefault();
+	}
+
+	function drag(ev) {
+		ev.dataTransfer.setData("Text", ev.target.id);
+	}
+
+	function drop(ev) {
+		ev.preventDefault();
+		var data = ev.dataTransfer.getData("Text");
+		ev.target.appendChild(document.getElementById(data));
+	}
 </script>
 </head>
 <body>
-	<form action="/sortCourse/testdeal.action" method="post">
-		<table id="tab" border="1"
-			class="table table-hover table-striped table-bordered">
-			<tr>
-				<td><input type="text" name="first" value="1"></td>
-				<td><input type="checkbox" name="second" ></td>
-			</tr>
-			<tr>
-				<td><input type="text" name="first" value="11"></td>
-				<td><input type="checkbox" name="second" value="做过兼职1"></td>
-			</tr>
-			<tr>
-				<td><input type="text" name="first" value="11"></td>
-				<td><input type="checkbox" name="second"value="做过兼职2" ></td>
-			</tr>
-			<tr>
-				<td><input type="text" name="first" value="11"></td>
-				<td><input type="checkbox" name="second"value="做过兼职3" ></td>
-			</tr>
-			
-		</table>
-	<input type="submit"value="tijiao">
-	</form>
+
+	<p>请把 W3School 的图片拖放到矩形中：</p>
+
+	<div id="div1" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+	<div id="div2" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+	<br/>
+	<div id="drag1" draggable="true"
+		ondragstart="drag(event)"><input type="text" value="sssseeeeeeeeddddddddaaaaaaaaaa"></div>
+		<div id="drag2" draggable="true"
+		ondragstart="drag(event)"><input type="text" value="sssseeeeeeeeddddddddaaaaaaaaaa"></div>
+
 </body>
 </html>
+

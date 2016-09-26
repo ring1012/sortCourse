@@ -35,7 +35,7 @@ public class DealService {
 			head[k-1]=true;
 		}
 		
-		List<allData>tsList=new ArrayList<>();
+		List<allData>tsList=new ArrayList<allData>();
 		for(int i=0;i<teacherName.length;i++){
 			allData temp=new allData(teacherName[i], courseName[i], perWeekClassNum[i], perWeekTimeNum[i],head[i]);
 			tsList.add(temp);
