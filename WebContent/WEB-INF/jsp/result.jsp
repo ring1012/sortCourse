@@ -37,23 +37,33 @@
 		});
 	});
 
-
 	var classNums;
 	var lessonNums;
+	var changeStr;
+	var fixTable;
 	$(document).ready(function() {
-		classNums = $("tr[id='rooms'] td").length-1;
-		lessonNums=<%=request.getParameter("result")%>;
-		
+		classNums = $("tr[id='rooms'] td").length - 1;
+		lessonNums = ($("tr").length / 2 - 8) / 7;
+		changeStr = new Array(classNums);
+		fixTable=new Array(classNums);
+		for(var i=0;i<classNums;i++){
+			fixTable[i]=new Array((lessonNums*7));
+			for(var j=0;j<lessonNums*7;j++){
+				fixTable[i][j]=0;
+			}
+		}
+		for(var i=0;i<classNums;i++){
+			changeStr[i]="";
+		}
 	})
 
-		function allowDrop(ev) {
+	function allowDrop(ev) {
 		ev.preventDefault();
 	}
 
-	var changeStr=new Array(classNums);
 	
 	function drop(ev) {
-		
+
 		ev.preventDefault();
 		var dropPosotion = new Array(2);
 		dropStr = ev.target.className;
@@ -77,7 +87,8 @@
 					$("body").find(dropTag).eq(1).html());
 			$("body").find(dropTag).eq(0).html(temp0);
 			$("body").find(dropTag).eq(1).html(temp1);
-			changeStr[dragPosition[0]]+=dragPosition[1]+"="+dropPosotion[1];
+			changeStr[dragPosition[0]] += dragPosition[1] + "="
+					+ dropPosotion[1]+"&";
 		}
 	}
 
@@ -85,7 +96,7 @@
 		ev.dataTransfer.setData("Text", ev.target.className);
 	}
 	var fix = false;
-	var fixTable=new Array()();
+	
 	function fixSite() {
 		fix = true;
 		$("td").css({
@@ -108,13 +119,15 @@
 			var tag = "[class='" + position[0] + " " + position[1] + "']";
 			$("body").find(tag).eq(0).attr("style", "background:red");
 			$("body").find(tag).eq(1).attr("style", "background:red");
-		}else{
+			fixTable[position[0]][position[1]]=1;
+		} else {
 			var position = new Array(2);
 			positionStr = ev.target.className;
 			position = positionStr.split(" ");
 			var tag = "[class='" + position[0] + " " + position[1] + "']";
 			$("body").find(tag).eq(0).attr("style", "background:white");
 			$("body").find(tag).eq(1).attr("style", "background:white");
+			fixTable[position[0]][position[1]]=0;
 		}
 	}
 

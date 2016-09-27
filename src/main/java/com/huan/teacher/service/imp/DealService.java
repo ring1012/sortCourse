@@ -44,6 +44,7 @@ public class DealService {
 		startSortCourse myCourse=new startSortCourse(classNum, morning, afternoon,saturday,sunday,tsList);
 		myCourse.allocateClasses();
 		ResultType ret=myCourse.allocateLessones();
+		request.getSession().setAttribute("myCourse", myCourse);
 		request.setAttribute("result", ret);
 		
 	}

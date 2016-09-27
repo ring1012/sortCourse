@@ -32,7 +32,7 @@ public class startSortCourse {
 	public int needLessons ;
 
 	public boolean[]everyWeek;
-	
+	public SA sa=null;
 	public startSortCourse(int classNum, int morning, int afternoon, int saturday, int sunday,
 			List<allData> datas) {
 		super();
@@ -374,7 +374,7 @@ public class startSortCourse {
 		everyClassIncludeTeacher();
 		initBlank();
 
-		SA sa = new SA( 20, 20, 25.0, 0.8, datas, definedCost, classIncludeTeacher,needLessons,lessonNum,classNum,everyWeek);
+		sa = new SA( 20, 20, 25.0, 0.8, datas, definedCost, classIncludeTeacher,needLessons,lessonNum,classNum,everyWeek);
 		sa.initGroup();
 		// printConflict(sa.datas);
 		return sa.solve();
@@ -382,6 +382,11 @@ public class startSortCourse {
 	}
 	// </excute>
 
+	public ResultType changeAndDeal() throws Myexception{
+		return sa.solve();
+	}
+	
+	
 	public void printConflict(ArrayList<allData> datas) {
 		for (int i = 0; i < teacherNum; i++) {
 			System.out.print("name:" + datas.get(i).teacherName);
