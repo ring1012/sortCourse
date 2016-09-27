@@ -1,5 +1,6 @@
 package com.huan.controller;
 
+import java.io.BufferedReader;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,10 +34,21 @@ public class SortContoller {
 		return "input";
 	}
 
-	@RequestMapping(value = "/test.action", method = RequestMethod.GET)
+	@RequestMapping(value = "/test.action", method = RequestMethod.POST)
 	public String test() {
-		System.out.println("test");
-		return "test";
+		try {
+  			request.setCharacterEncoding("UTF-8");
+ 			StringBuffer json = new StringBuffer();
+ 			String line = null;
+ 			BufferedReader reader = request.getReader();
+ 			while ((line = reader.readLine()) != null) {
+  				json.append(line);
+  			}
+  			System.out.println(json.toString());
+ 		}catch (Exception e) {
+  			System.out.println(e.getMessage());
+  		}
+  		return "test";
 	}
 
 	@RequestMapping(value = "/deal.action", method = RequestMethod.POST)

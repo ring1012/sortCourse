@@ -130,10 +130,26 @@
 			fixTable[position[0]][position[1]]=0;
 		}
 	}
+	
+	
+	function changeSubmit(){
+		var form = $("<form method='post'></form>");
+        form.attr({"action":"/sortCourse/test.action"});
+        var args=new Array(2);
+        args[0]=fixTable;
+        args[1]=changeStr;
+        for (arg in args)
+        {
+            var input = $("<input type='hidden'>");
+            input.attr({"name":arg});
+            input.val(args[arg]);
+            form.append(input);
+        }
+        form.submit();
+	}
 
 	$(function() {
 		$('#btnConfirm').click(function() {
-
 			$('form').submit();
 		})
 
@@ -151,7 +167,7 @@
 			取消固定</a>
 		</button>
 		<button type="button" class="btn btn-info btn-lg"
-			style="aligen: center" id="btnConfirm">
+			style="aligen: center" id="btnConfirm" onclick="changeSubmit()" >
 			提交</a>
 		</button>
 	</div>
