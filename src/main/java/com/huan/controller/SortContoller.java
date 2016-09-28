@@ -51,7 +51,8 @@ public class SortContoller {
   			System.out.println(e.getMessage());
   		}
 		ResultType rt=(ResultType)request.getSession().getAttribute("result");
-		System.out.println("rt: "+rt.lessonNum);
+		System.out.println("rt:lessones "+rt.lessonNum);
+		System.out.println("rt:class "+rt.classNum);
   		return "test";
 	}
 
