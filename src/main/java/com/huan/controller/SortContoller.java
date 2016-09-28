@@ -45,18 +45,13 @@ public class SortContoller {
  			while ((line = reader.readLine()) != null) {
   				json.append(line);
   			}
- 			String reslut=URLDecoder.decode(json.toString(), "utf-8");
-  			System.out.println(reslut);
+ 			String result=URLDecoder.decode(json.toString(), "utf-8");
+  			System.out.println(result);
  		}catch (Exception e) {
   			System.out.println(e.getMessage());
   		}
-		
-		String fixTable=request.getParameter("changeStr");
-		
-		String changeStr=request.getParameter("fixTable");
-		System.out.println("fix: "+fixTable);
-		System.out.println("change: "+changeStr);
-		
+		ResultType rt=(ResultType)request.getSession().getAttribute("result");
+		System.out.println("rt: "+rt.lessonNum);
   		return "test";
 	}
 
