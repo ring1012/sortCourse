@@ -51,8 +51,9 @@ public class SortContoller {
   			System.out.println(e.getMessage());
   		}
 		
-		String fixTable=request.getParameter("fixTable");
-		String changeStr=request.getParameter("changeStr");
+		String fixTable=request.getParameter("changeStr");
+		
+		String changeStr=request.getParameter("fixTable");
 		System.out.println("fix: "+fixTable);
 		System.out.println("change: "+changeStr);
 		

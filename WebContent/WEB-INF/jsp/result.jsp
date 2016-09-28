@@ -132,7 +132,7 @@
 	}
 	
 	function changeSubmit(){
-		var form = $("<form method='post'></form>");
+		var form = $("<form method='post'  target='_blank'></form>");
         form.attr({"action":"/sortCourse/test.action"});
         var args=new Array(2);
         args[0]=fixTable;
