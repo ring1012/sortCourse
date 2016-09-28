@@ -44,7 +44,7 @@ public class SortContoller {
  			while ((line = reader.readLine()) != null) {
   				json.append(line);
   			}
-  			System.out.println(json.toString());
+  			System.out.println(ret);
  		}catch (Exception e) {
   			System.out.println(e.getMessage());
   		}
