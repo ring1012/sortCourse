@@ -131,7 +131,6 @@
 		}
 	}
 	
-	
 	function changeSubmit(){
 		var form = $("<form method='post'></form>");
         form.attr({"action":"/sortCourse/test.action"});
