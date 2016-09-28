@@ -45,8 +45,13 @@ public class SortContoller {
  			while ((line = reader.readLine()) != null) {
   				json.append(line);
   			}
+<<<<<<< HEAD
  			String reslut=URLDecoder.decode(json.toString(), "utf-8");
   			System.out.println(reslut);
+=======
+ 			String ret=URLDecoder.decode(json.toString(),"utf-8");
+  			System.out.println(ret);
+>>>>>>> branch 'master' of https://github.com/ring1012/sortCourse.git
  		}catch (Exception e) {
   			System.out.println(e.getMessage());
   		}
