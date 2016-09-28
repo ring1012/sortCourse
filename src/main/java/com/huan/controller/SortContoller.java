@@ -1,6 +1,7 @@
 package com.huan.controller;
 
 import java.io.BufferedReader;
+import java.net.URLDecoder;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -44,6 +45,7 @@ public class SortContoller {
  			while ((line = reader.readLine()) != null) {
   				json.append(line);
   			}
+ 			String ret=URLDecoder.decode(json.toString(), "utf-8");
   			System.out.println(json.toString());
  		}catch (Exception e) {
   			System.out.println(e.getMessage());
