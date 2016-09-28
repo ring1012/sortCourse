@@ -148,12 +148,6 @@
         form.submit();
 	}
 
-	$(function() {
-		$('#btnConfirm').click(function() {
-			$('form').submit();
-		})
-
-	})
 </script>
 <body>
 
