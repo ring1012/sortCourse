@@ -206,8 +206,6 @@ public class SA {
 	public void searchConnection(ResultType result) {
 		ArrayList<allData> myDatas = result.datas;
 		int sheet[][] = result.sheetInfor;
-		int classes = sheet.length;
-		int lessones = sheet[0].length;
 		for (int i = 0; i < myDatas.size(); i++) {
 			myDatas.get(i).connectCells.clear();
 		}
@@ -1104,11 +1102,11 @@ public class SA {
 		int c2 = c1;
 
 		int l1 = random.nextInt(needLessons);
-		while (everyWeek[l1]) {
+		while (everyWeek[l1]||fixTable[c1][l1]==1) {
 			l1 = random.nextInt(needLessons);
 		}
 		int l2 = random.nextInt(needLessons);
-		while (everyWeek[l2]) {
+		while (everyWeek[l2]||fixTable[c2][l2]==1) {
 			l2 = random.nextInt(needLessons);
 		}
 
