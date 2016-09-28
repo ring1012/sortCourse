@@ -146,6 +146,7 @@
         input.val(args[1]);
         form.append(input);
         form.submit();
+        
 	}
 
 </script>
