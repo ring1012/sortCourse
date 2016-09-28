@@ -37,6 +37,7 @@ public class SortContoller {
 
 	@RequestMapping(value = "/test.action", method = RequestMethod.POST)
 	public String test() {
+		String reslut=null;
 		try {
   			request.setCharacterEncoding("UTF-8");
  			StringBuffer json = new StringBuffer();
@@ -45,17 +46,13 @@ public class SortContoller {
  			while ((line = reader.readLine()) != null) {
   				json.append(line);
   			}
- 			String reslut=URLDecoder.decode(json.toString(), "utf-8");
-  			System.out.println(reslut);
+ 			reslut=URLDecoder.decode(json.toString(), "utf-8");
  		}catch (Exception e) {
   			System.out.println(e.getMessage());
   		}
-		
-		String fixTable=request.getParameter("changeStr");
-		
-		String changeStr=request.getParameter("fixTable");
-		System.out.println("fix: "+fixTable);
-		System.out.println("change: "+changeStr);
+		if(reslut!=null){
+			System.out.println(reslut);
+		}
 		
   		return "test";
 	}
