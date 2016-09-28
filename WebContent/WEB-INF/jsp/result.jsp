@@ -137,13 +137,14 @@
         var args=new Array(2);
         args[0]=fixTable;
         args[1]=changeStr;
-        for (arg in args)
-        {
-            var input = $("<input type='hidden'>");
-            input.attr({"name":arg});
-            input.val(args[arg]);
-            form.append(input);
-        }
+        var input = $("<input type='hidden'>");
+        input.attr({"name":"fixTable"});
+        input.val(args[0]);
+        form.append(input);
+        input = $("<input type='hidden'>");
+        input.attr({"name":"changeStr"});
+        input.val(args[1]);
+        form.append(input);
         form.submit();
 	}
 
