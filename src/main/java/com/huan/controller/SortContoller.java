@@ -47,6 +47,7 @@ public class SortContoller {
   			}
  			String reslut=URLDecoder.decode(json.toString(), "utf-8");
   			System.out.println(reslut);
+ 			String ret=URLDecoder.decode(json.toString(),"utf-8");
  		}catch (Exception e) {
   			System.out.println(e.getMessage());
   		}
