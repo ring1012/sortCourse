@@ -2,6 +2,7 @@ package com.huan.controller;
 
 import java.io.BufferedReader;
 import java.net.URLDecoder;
+import java.util.Enumeration;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,6 +17,7 @@ import com.huan.definition.ResultType;
 import com.huan.model.Teacher;
 import com.huan.sort.util.startSortCourse;
 import com.huan.teacher.service.ITeacherService;
+import com.huan.teacher.service.imp.ChangeService;
 import com.huan.teacher.service.imp.DealService;
 
 @Controller
@@ -29,6 +31,9 @@ public class SortContoller {
 
 	@Autowired
 	DealService dealService;
+	
+	@Autowired
+	ChangeService changeService;
 
 	@RequestMapping(value = "/input.action", method = RequestMethod.GET)
 	public String input() {
@@ -38,21 +43,17 @@ public class SortContoller {
 	@RequestMapping(value = "/test.action", method = RequestMethod.POST)
 	public String test() {
 		try {
-  			request.setCharacterEncoding("UTF-8");
- 			StringBuffer json = new StringBuffer();
- 			String line = null;
- 			BufferedReader reader = request.getReader();
- 			while ((line = reader.readLine()) != null) {
-  				json.append(line);
-  			}
- 			String result=URLDecoder.decode(json.toString(), "utf-8");
- 		}catch (Exception e) {
-  			System.out.println(e.getMessage());
-  		}
-		ResultType rt=(ResultType)request.getSession().getAttribute("result");
-		System.out.println("rt:lessones "+rt.lessonNum);
-		System.out.println("rt:class "+rt.classNum);
-  		return "test";
+			String fixTable=request.getParameter("fixTable");
+			String changeStr=request.getParameter("changeStr");
+			startSortCourse rt=(startSortCourse)request.getSession().getAttribute("myCourse");
+			changeService.excute(fixTable,changeStr,rt,request);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			// TODO: handle exception
+		}
+	
+  		return "result";
 	}
 
 	@RequestMapping(value = "/deal.action", method = RequestMethod.POST)
