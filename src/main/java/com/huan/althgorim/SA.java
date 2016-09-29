@@ -4,10 +4,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Random;
+import java.util.Set;
 
+import com.huan.course.util.ConvertUtil;
 import com.huan.definition.MyRandom;
 import com.huan.definition.Mytime;
 import com.huan.definition.Position;
@@ -34,20 +37,14 @@ public class SA {
 	public double minCost = 99999999;
 	public double tempCost;
 	public double mycost;
-	public ResultType tempResult ;
-	public ResultType beginResult ;
+	public ResultType tempResult;
+	public ResultType beginResult;
 	public ArrayList<ArrayList<Integer>> classIncludeTeacher;
 	public int classNum;
 	public boolean everyWeek[];
-
+	public int fixTable[][];
 	public ArrayList<Double> bestCostflu = new ArrayList<>();
 	public ArrayList<Double> tempCostflu = new ArrayList<>();
-
-	public SA() {
-		random = MyRandom.getInstance();
-		sheetInfor = new int[15][needLessons];
-
-	}
 
 	/**
 	 * constructor of GA
@@ -86,11 +83,12 @@ public class SA {
 		this.lessonNum = lessonNum;
 		this.classNum = classNum;
 		this.everyWeek = everyWeek;
-		
-		bestResult=new ResultType(classNum, lessonNum, everyWeek);
 
-		this.tempResult=new ResultType(classNum,lessonNum,everyWeek);
-		this.beginResult=new ResultType(classNum,lessonNum,everyWeek);
+		bestResult = new ResultType(classNum, lessonNum, everyWeek);
+
+		this.tempResult = new ResultType(classNum, lessonNum, everyWeek);
+		this.beginResult = new ResultType(classNum, lessonNum, everyWeek);
+		this.fixTable = new int[this.classNum][this.lessonNum * 7];
 	}
 
 	public void initGroup() {
@@ -207,81 +205,51 @@ public class SA {
 
 	public void searchConnection(ResultType result) {
 		ArrayList<allData> myDatas = result.datas;
-		int sheet[][] = result.sheetInfor;
-		int classes = sheet.length;
-		int lessones = sheet[0].length;
-
-		// for (int i = 0; i < classes; i++) {
-		// for (int j = 0; j < lessones - 2; j++) {
-		// if (sheetInfor[i][j] == sheetInfor[i][j + 1] && sheetInfor[i][j] ==
-		// sheetInfor[i][j + 2]
-		// && j % lessonNum != 6 && j % lessonNum != 5) {
-		// myDatas.get(sheetInfor[i][j]).connectLessons.add(new Position(i, j));
-		// myDatas.get(sheetInfor[i][j]).connectLessons.add(new Position(i, j +
-		// 1));
-		// myDatas.get(sheetInfor[i][j]).connectLessons.add(new Position(i, j +
-		// 2));
-		//
-		// } else if (sheetInfor[i][j] == sheetInfor[i][j + 1] && j % lessonNum
-		// != 6) {
-		// myDatas.get(sheetInfor[i][j]).connectLessons.add(new Position(i, j));
-		// myDatas.get(sheetInfor[i][j]).connectLessons.add(new Position(i, j +
-		// 1));
-		// }
-		//
-		// }
-		// if (sheetInfor[i][lessones - 1] == sheetInfor[i][lessones - 2]
-		// && sheetInfor[i][lessones - 1] == sheetInfor[i][lessones - 3]) {
-		//
-		// } else if (sheetInfor[i][lessones - 1] == sheetInfor[i][lessones -
-		// 2]) {
-		// myDatas.get(sheetInfor[i][lessones - 1]).connectLessons.add(new
-		// Position(i, lessones - 1));
-		// myDatas.get(sheetInfor[i][lessones - 1]).connectLessons.add(new
-		// Position(i, lessones - 2));
-		// }
-		// }
+		int sheetInfor[][] = result.sheetInfor;
 		for (int i = 0; i < myDatas.size(); i++) {
 			myDatas.get(i).connectCells.clear();
 		}
-		for (int i = 0; i < classes; i++) {
-			for (int j = 0; j < lessones - 1; j++) {
-				if (sheet[i][j] == sheet[i][j + 1]) {
-					myDatas.get(sheet[i][j]).connectCells.add(new Position(i, j));
-					myDatas.get(sheet[i][j]).connectCells.add(new Position(i, j + 1));
-					try {
-						if (sheet[i][j] == sheet[i][j + 2]) {
-							myDatas.get(sheet[i][j]).connectCells.add(new Position(i, j + 2));
-							j++;
-						}
-						try {
-							if (sheet[i][j] == sheet[i][j + 3]) {
-								myDatas.get(sheet[i][j]).connectCells.add(new Position(i, j + 3));
-								j++;
+
+		for (int i = 0; i < classNum; i++) {
+			for (int j = 0; j < lessonNum * 7;) {
+				if (everyWeek[j] == false) {
+					int count = 1;
+					int current = sheetInfor[i][j];
+					Position temp = new Position(i, j);
+					myDatas.get(current).connectCells.add(temp);
+					while (count + j < lessonNum * 7) {
+						if (current == sheetInfor[i][count + j]) {
+							myDatas.get(current).connectCells.add(new Position(i, count + j));
+							count++;
+						} else {
+							if (count == 1) {
+								myDatas.get(current).connectCells.remove(temp);
 							}
-						} catch (Exception e2) {
-							// TODO: handle exception
+							break;
 						}
-					} catch (Exception e) {
-						// TODO: handle exception
 					}
+					if (count + j == lessonNum * 7 && count == 1) {
+						myDatas.get(current).connectCells.remove(temp);
+					}
+					j += count;
+				} else {
+					j++;
 				}
 
 			}
 		}
-
 	}
 
 	public void printSheet(int sheet[][]) {
 		for (int j = 0; j < needLessons; j++) {
 			System.out.print((j) + " ");
-			if(everyWeek[j]==false){
-				
+			if (everyWeek[j] == false) {
+
 				for (int i = 0; i < classNum; i++) {
 					System.out.printf("%s\t", datas.get(sheet[i][j]).teacherName);
 
 				}
-				
+
 			}
 			System.out.println();
 		}
@@ -358,6 +326,99 @@ public class SA {
 
 	}
 
+	public void changeAttr(int table[][], String exchange[],int sheet[][]) {
+		this.fixTable = table;
+		this.sheetInfor=sheet;
+		for (int i = 0; i < exchange.length; i++) {
+			if (exchange[i].length() != 0) {
+				String opers[] = exchange[i].split("&");
+				for (String oper : opers) {
+					int twoNum[] = ConvertUtil.parsIntArray(oper.split("="));
+					int temp = sheetInfor[i][twoNum[0]];
+					sheetInfor[i][twoNum[0]] = sheetInfor[i][twoNum[1]];
+					sheetInfor[i][twoNum[1]] = temp;
+				}
+			}
+		}
+
+		updateDataBySheet();
+
+	}
+
+	public void updateDataBySheet() {
+		bestResult = new ResultType(classNum, lessonNum, everyWeek);
+		beginResult = new ResultType(classNum, lessonNum, everyWeek);
+		tempResult = new ResultType(classNum, lessonNum, everyWeek);
+		tempCostflu = new ArrayList<>();
+		bestCostflu = new ArrayList<>();
+		noConflict = false;
+
+		for (allData ad : datas) {
+			ad.weekY.clear();
+			ad.connectCells.clear();
+			ad.conflictCells.clear();
+			ad.arrangeCells.clear();
+		}
+
+		for (int i = 0; i < classNum; i++) {
+			for (int j = 0; j < lessonNum * 7;) {
+				if (everyWeek[j] == false) {
+					int count = 1;
+					int current = sheetInfor[i][j];
+					Position temp = new Position(i, j);
+					datas.get(current).connectCells.add(temp);
+					while (count + j < lessonNum * 7) {
+						if (current == sheetInfor[i][count + j]) {
+							datas.get(current).connectCells.add(new Position(i, count + j));
+							count++;
+						} else {
+							if (count == 1) {
+								datas.get(current).connectCells.remove(temp);
+							}
+							break;
+						}
+					}
+					if (count + j == lessonNum * 7 && count == 1) {
+						datas.get(current).connectCells.remove(temp);
+					}
+					for (int k = 0; k < count; k++) {
+						if (!datas.get(current).weekY.contains(j + k)) {
+							datas.get(current).weekY.add(j + k);
+						}
+						datas.get(current).arrangeCells.add(new Position(i, j + k));
+					}
+					j += count;
+				} else {
+					j++;
+				}
+
+			}
+		}
+
+		for (int j = 0; j < lessonNum * 7; j++) {
+			if (everyWeek[j] == false) {
+				List<Integer> sameTime = new ArrayList<>();
+				Set<Integer> oneRow = new HashSet<>();
+				for (int i = 0; i < classNum; i++) {
+					int index = sameTime.indexOf(sheetInfor[i][j]);
+					if (index != -1) {
+						oneRow.add(index);
+						oneRow.add(i);
+					}
+					sameTime.add(sheetInfor[i][j]);
+
+				}
+				for (int k : oneRow) {
+					datas.get(sheetInfor[k][j]).conflictCells.add(new Position(k, j));
+				}
+			}
+
+			
+
+		}
+		printSheet(sheetInfor);
+	}
+
 	public ResultType solve() throws Myexception {
 		// printSheet(sheetInfor);
 
@@ -371,6 +432,7 @@ public class SA {
 		int n = 0;// 迭代步数
 		double t = t0;
 		double r = 0.0;
+		boolean connect=true;
 		// boolean searchOnece = false;
 		while (k < T) {
 			n = 0;
@@ -378,18 +440,20 @@ public class SA {
 				copyGh(beginResult, tempResult);
 				int index = isNoneConflict(tempResult.datas);
 				if (index == -1) {
-					ArrayList<allData> myDatas = tempResult.datas;
+					
 					int sumConnectNumber = 0;
+					searchConnection(tempResult);
+					ArrayList<allData> myDatas = tempResult.datas;
 					for (int i = 0; i < myDatas.size(); i++) {
 						sumConnectNumber += myDatas.get(i).connectCells.size();
 
 					}
-					if (sumConnectNumber == 0) {
+					if (sumConnectNumber == 0||!connect) {
 						randomChange(beginResult, tempResult);
 					} else {
 						try {
 							// System.out.println("no conflict");
-							dealConnect(beginResult, tempResult, sumConnectNumber);
+							connect=dealConnect(beginResult, tempResult, sumConnectNumber);
 						} catch (Myexception e) {
 							// TODO Auto-generated catch block
 							randomChange(beginResult, tempResult);// 无法找出
@@ -421,8 +485,6 @@ public class SA {
 				r = random.nextDouble();
 				if (tempCost < mycost || (tempCost != mycost && Math.exp((mycost - tempCost) / t) > r)) {
 					copyGh(tempResult.datas, tempResult.sheetInfor, beginResult);
-					if (tempCost > mycost)
-						System.out.println("温度= " + t);
 					mycost = tempCost;
 
 				}
@@ -431,7 +493,7 @@ public class SA {
 			t = a * t;
 			k++;
 		}
-		
+
 		// printConflict(beginResult.datas);
 		// checkResult(bestResult);
 
@@ -463,13 +525,21 @@ public class SA {
 				System.out.print(bestCostflu.get(i) + "=>");
 			}
 		}
-		if(noConflict==true){
+		if (noConflict == true) {
 			printSheet(bestResult.sheetInfor);
+			ArrayList<allData>myDatas=bestResult.datas;
+			int sumConnectNumber = 0;
+			for (int i = 0; i < myDatas.size(); i++) {
+				sumConnectNumber += myDatas.get(i).connectCells.size();
+
+			}
+			System.out.println("最后剩余连堂"+sumConnectNumber);
 			return bestResult;
-		}
-		else return null;
+		} else
+			return null;
 		// System.out.println("final cost= "+bestResult.getCost(definedCost));
 		// printConflict(tempResult.datas);
+		
 	}
 
 	public boolean checkResult(ResultType result) {
@@ -577,9 +647,10 @@ public class SA {
 				for (int x = 0; x < needLessons; x++) {
 					if (everyWeek[x] == false) {
 						if (!tData.weekY.contains(x)) {
-
-							if (!datas.get(sheet[c][x]).weekY.contains(onelessonCon)) {
-								allowedLesson.add(x);
+							if (fixTable[c][x] == 0) {
+								if (!datas.get(sheet[c][x]).weekY.contains(onelessonCon)) {
+									allowedLesson.add(x);
+								}
 							}
 
 						}
@@ -737,14 +808,14 @@ public class SA {
 
 	}
 
-	public void dealConnect(ResultType begin, ResultType result, int sumConnectNumber) throws Myexception {
+	public boolean dealConnect(ResultType begin, ResultType result, int sumConnectNumber) throws Myexception {
 
 		copyGh(begin, result);
-		searchConnection(result);
+//		searchConnection(result);
 		ArrayList<allData> myDatas = result.datas;
 		int sheet[][] = result.sheetInfor;
 
-		System.out.println("connection nunm=" + sumConnectNumber);
+		//System.out.println("connection nunm=" + sumConnectNumber);
 		int rdint = random.nextInt(sumConnectNumber);
 		int tindex = 0;
 		int tselct = 0;
@@ -757,101 +828,76 @@ public class SA {
 		allData tData = myDatas.get(tindex);
 		ArrayList<Position> tcon = tData.connectCells;
 		int rdindexy = random.nextInt(tcon.size());
+		int classX = tcon.get(rdindexy).classX;
 		int timeY = tcon.get(rdindexy).timeY;
 
-		int connectNum = 0;
-		for (Position tp : tcon) {
-			if (tp.timeY == timeY) {
-				connectNum++;
+		int top = rdindexy - 1, down = rdindexy + 1, count = 0, connectNum = 0;
+		while (top >= 0) {
+			if (tcon.get(top).classX == classX && tcon.get(top).timeY == timeY - count - 1) {
+				top--;
+				count++;
+			} else {
+				break;
+			}
+
+		}
+		connectNum += count;
+		int beginCon = rdindexy - count;
+		count = 0;
+		while (down < tcon.size()) {
+			if (tcon.get(down).classX == classX && tcon.get(down).timeY == timeY + count + 1) {
+				down++;
+				count++;
+			} else {
+				break;
 			}
 		}
-		Position focusPosition;
-		double rdouble = random.nextDouble();
-
-		if (connectNum == 2 && rdouble > 0.5) {// first
-			// int twosite = 0;
-			int mycount = 0;
-			for (Position i : tcon) {
-
-				if (i.timeY == timeY) {
-					// twosite++;
-					// if (twosite == 1) {
-					// break;
-					// }
-					break;
-				}
-				mycount++;
+		connectNum += count;
+		int myCount = random.nextInt(connectNum);
+		Position focusPosition = tcon.get(beginCon + myCount);
+		for(int h=beginCon;h<beginCon+myCount;){
+			if(fixTable[focusPosition.classX][focusPosition.timeY]==0){
+				break;
+			}else{
+				h++;
+				focusPosition = tcon.get(h);
 			}
-			try {
-				if (tcon.get(mycount - 1).timeY == timeY - 1) {
-					mycount--;
-				}
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
-
-			focusPosition = tcon.get(mycount);
-
-		} else if (connectNum > 2) {// middle
-
-			// int twosite = 0;
-			int mycount = 0;
-			for (Position i : tcon) {
-
-				if (i.timeY == timeY) {
-					// twosite++;
-					// if (twosite == 2) {
-					// break;
-					// }
-					break;
-				}
-				mycount++;
-			}
-			try {
-				if (tcon.get(mycount + 1).timeY == timeY + 1 && tcon.get(mycount + 2).timeY == timeY + 2) {
-					mycount++;
-				} else if (tcon.get(mycount - 2).timeY == timeY - 2 && tcon.get(mycount - 1).timeY == timeY - 1) {
-					mycount--;
-				}
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
-
-			focusPosition = tcon.get(mycount + 1);
-
-		} else {// last
-			int mycount = 0;
-			for (Position i : tcon) {
-
-				if (i.timeY == timeY) {
-					// twosite++;
-					// if (twosite == 2) {
-					// break;
-					// }
-					break;
-				}
-				mycount++;
-			}
-			try {
-				if (tcon.get(mycount + 1).timeY == timeY + 1) {
-					mycount++;
-				}
-			} catch (Exception e) {
-				// TODO: handle exception
-			}
-			focusPosition = tcon.get(mycount);
 		}
 
+		if(fixTable[focusPosition.classX][focusPosition.timeY]==1){
+			boolean f=false;
+			for(int i=0;i<myDatas.size();i++){
+				if(f){
+					break;
+				}
+				for(int j=0;j<myDatas.get(i).connectCells.size();j++){
+					Position temp=myDatas.get(i).connectCells.get(j);
+					if(fixTable[temp.classX][temp.timeY]==1){
+						continue;
+					}else{
+						f=true;
+						focusPosition=temp;
+						break;
+					
+					}
+				}
+			}
+		}
+		if(fixTable[focusPosition.classX][focusPosition.timeY]==1){
+			return false;
+		}
 		int c = focusPosition.classX;
 		ArrayList<Integer> allowed = new ArrayList<>();
 
 		for (int i = 0; i < needLessons; i++) {
 			if (everyWeek[i] == false) {
 				if (!tData.weekY.contains(i)) {
-
-					if (!myDatas.get(sheet[c][i]).weekY.contains(timeY)) {
-						allowed.add(i);
+					if (fixTable[c][i] == 0) {
+						if (!myDatas.get(sheet[c][i]).weekY.contains(timeY)) {
+							allowed.add(i);
+						}
 					}
+
 				}
 			}
 
@@ -994,8 +1040,10 @@ public class SA {
 			}
 
 		} else {
-			throw new Myexception("connection error");
+			// throw new Myexception("connection error");
+			fixTable[focusPosition.classX][focusPosition.timeY]=1;
 		}
+		return true;
 
 	}
 
@@ -1029,6 +1077,14 @@ public class SA {
 		int sheet[][] = result.sheetInfor;
 		int t1 = sheet[c1][l1];
 		int t2 = sheet[c2][l2];
+
+		if (fixTable[c1][l1] == 1) {
+			return false;
+		}
+		if (fixTable[c2][l2] == 1) {
+			return false;
+		}
+
 		if (t1 == t2) {
 			return false;
 		}
@@ -1090,11 +1146,11 @@ public class SA {
 		int c2 = c1;
 
 		int l1 = random.nextInt(needLessons);
-		while (everyWeek[l1]) {
+		while (everyWeek[l1]||fixTable[c1][l1]==1) {
 			l1 = random.nextInt(needLessons);
 		}
 		int l2 = random.nextInt(needLessons);
-		while (everyWeek[l2]) {
+		while (everyWeek[l2]||fixTable[c2][l2]==1) {
 			l2 = random.nextInt(needLessons);
 		}
 
