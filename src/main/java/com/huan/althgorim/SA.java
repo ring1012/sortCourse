@@ -738,33 +738,41 @@ public class SA {
 					double repet = 600.0;
 
 					for (int y : allowedLesson) {
-						if (sheet[c][y] == 3 && onelessonCon % lessonNum != 6) {
+						if (datas.get(sheet[c][y]).courseIndex == 3 && onelessonCon % lessonNum != lessonNum-1) {
 							allowedCost.add(1.0 / 99999);
 							continue;
 						}
 						double tempNum = 1.0;
+						
 						try {
-							if (sheet[c][y] == sheet[c][onelessonCon - 1]
-									|| sheet[c][y] == sheet[c][onelessonCon + 1]) {
+							if (sheet[c][y] == sheet[c][onelessonCon - 1]) {
 								tempNum += repet;
 							}
-							if (sheet[c][onelessonCon] == sheet[c][y - 1]
-									|| sheet[c][onelessonCon] == sheet[c][y + 1]) {
-								tempNum += repet;
-							}
-
 						} catch (Exception e) {
 							// TODO: handle exception
-							try {
-								if (sheet[c][onelessonCon] == sheet[c][y - 1]
-										|| sheet[c][onelessonCon] == sheet[c][y + 1]) {
-									tempNum += repet;
-								}
-							} catch (Exception e2) {
-								// TODO: handle exception
-							}
-
 						}
+						try {
+							if (sheet[c][y] == sheet[c][onelessonCon + 1]) {
+								tempNum += repet;
+							}
+						} catch (Exception e) {
+							// TODO: handle exception
+						}
+						try {
+							if (sheet[c][onelessonCon] == sheet[c][y - 1]) {
+								tempNum += repet;
+							}
+						} catch (Exception e) {
+							// TODO: handle exception
+						}
+						try {
+							if (sheet[c][onelessonCon] == sheet[c][y + 1]) {
+								tempNum += repet;
+							}
+						} catch (Exception e) {
+							// TODO: handle exception
+						}
+						
 						allowedCost.add(1.0 / tempNum);
 					}
 					double sumSuit = 0;
@@ -781,7 +789,7 @@ public class SA {
 							break;
 						}
 					}
-					exchangeY.add(new Position(c, site));
+					exchangeY.add(new Position(c, allowedLesson.get(site)));
 					suitable.add(allowedCost.get(site));
 
 				} else {
@@ -935,15 +943,16 @@ public class SA {
 				break;
 			}
 		}
-		connectNum += count;
+		connectNum += count+1;
 		int myCount = random.nextInt(connectNum);
 		Position focusPosition = tcon.get(beginCon + myCount);
-		for(int h=beginCon;h<beginCon+myCount;){
+		for(int h=beginCon;h<beginCon+connectNum;){
 			if(fixTable[focusPosition.classX][focusPosition.timeY]==0){
 				break;
 			}else{
-				h++;
+				
 				focusPosition = tcon.get(h);
+				h++;
 			}
 		}
 
@@ -991,30 +1000,43 @@ public class SA {
 			double repet = 99999.0;
 
 			for (int y : allowed) {
-				if (sheet[c][y] == 3 && timeY % lessonNum != 6) {
+				if (datas.get(sheet[c][y]).courseIndex == 3 && timeY % lessonNum != lessonNum-1) {
 					allowedCost.add(1.0 / 999999);
 					continue;
 				}
 				double tempNum = 1.0;
-				try {
-					if (sheet[c][y] == sheet[c][timeY - 1] || sheet[c][y] == sheet[c][timeY + 1]) {
-						tempNum += repet;
-					}
-					if (sheet[c][timeY] == sheet[c][y - 1] || sheet[c][timeY] == sheet[c][y + 1]) {
-						tempNum += repet;
-					}
+				
 
+				try {
+					if (sheet[c][y] == sheet[c][timeY - 1]) {
+						tempNum += repet;
+					}
 				} catch (Exception e) {
 					// TODO: handle exception
-					try {
-						if (sheet[c][timeY] == sheet[c][y - 1] || sheet[c][timeY] == sheet[c][y + 1]) {
-							tempNum += repet;
-						}
-					} catch (Exception e2) {
-						// TODO: handle exception
-					}
-
 				}
+				try {
+					if (sheet[c][y] == sheet[c][timeY + 1]) {
+						tempNum += repet;
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				try {
+					if (sheet[c][timeY] == sheet[c][y - 1]) {
+						tempNum += repet;
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				try {
+					if (sheet[c][timeY] == sheet[c][y + 1]) {
+						tempNum += repet;
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				
+				
 				allowedCost.add(1.0 / tempNum);
 			}
 			int site = -1;
@@ -1037,12 +1059,12 @@ public class SA {
 				if (--loop < 0) {
 					break;
 				}
-			} while (IsConnect(c, site, sheet, timeY));
-			if (loop == -1 && IsConnect(c, site, sheet, timeY)) {
+			} while (IsConnect(c, allowed.get(site), sheet, timeY));
+			if (loop == -1 && IsConnect(c, allowed.get(site), sheet, timeY)) {
 
 			} else {
 
-				Position cl = new Position(c, site);
+				Position cl = new Position(c, allowed.get(site));
 
 				// int myindex = 0;
 				//
