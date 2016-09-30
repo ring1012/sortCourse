@@ -10,6 +10,8 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 import com.huan.course.util.ConvertUtil;
 import com.huan.definition.MyRandom;
 import com.huan.definition.Mytime;
@@ -19,6 +21,7 @@ import com.huan.exception.Myexception;
 import com.huan.model.allData;
 
 public class SA {
+	private static final Logger logger=Logger.getLogger(SA.class);
 
 	private int N;// 每个温度迭代步长
 	private int T;// 降温次数
@@ -241,17 +244,22 @@ public class SA {
 	}
 
 	public void printSheet(int sheet[][]) {
+		logger.info("\r\n\t");
+		for(int i=0;i<classNum;i++){
+			logger.info(i+"\t");
+		}
+		logger.info("\r\n");
 		for (int j = 0; j < needLessons; j++) {
-			System.out.print((j) + " ");
+			logger.info((j) + "\t");
 			if (everyWeek[j] == false) {
 
 				for (int i = 0; i < classNum; i++) {
-					System.out.printf("%s\t", datas.get(sheet[i][j]).teacherName);
-
+					String temp=String.format("%s\t", datas.get(sheet[i][j]).teacherName);
+					logger.info(temp);
 				}
 
 			}
-			System.out.println();
+			logger.info("\r\n");
 		}
 
 	}
@@ -345,6 +353,73 @@ public class SA {
 
 	}
 
+	public void updateDataBySheet(int sheetInfor[][]){
+		for (allData ad : datas) {
+			ad.weekY.clear();
+			ad.connectCells.clear();
+			ad.conflictCells.clear();
+			ad.arrangeCells.clear();
+		}
+
+		for (int i = 0; i < classNum; i++) {
+			for (int j = 0; j < lessonNum * 7;) {
+				if (everyWeek[j] == false) {
+					int count = 1;
+					int current = sheetInfor[i][j];
+					Position temp = new Position(i, j);
+					datas.get(current).connectCells.add(temp);
+					while (count + j < lessonNum * 7) {
+						if (current == sheetInfor[i][count + j]) {
+							datas.get(current).connectCells.add(new Position(i, count + j));
+							count++;
+						} else {
+							if (count == 1) {
+								datas.get(current).connectCells.remove(temp);
+							}
+							break;
+						}
+					}
+					if (count + j == lessonNum * 7 && count == 1) {
+						datas.get(current).connectCells.remove(temp);
+					}
+					for (int k = 0; k < count; k++) {
+						if (!datas.get(current).weekY.contains(j + k)) {
+							datas.get(current).weekY.add(j + k);
+						}
+						datas.get(current).arrangeCells.add(new Position(i, j + k));
+					}
+					j += count;
+				} else {
+					j++;
+				}
+
+			}
+		}
+
+		for (int j = 0; j < lessonNum * 7; j++) {
+			if (everyWeek[j] == false) {
+				List<Integer> sameTime = new ArrayList<>();
+				Set<Integer> oneRow = new HashSet<>();
+				for (int i = 0; i < classNum; i++) {
+					int index = sameTime.indexOf(sheetInfor[i][j]);
+					if (index != -1) {
+						oneRow.add(index);
+						oneRow.add(i);
+					}
+					sameTime.add(sheetInfor[i][j]);
+
+				}
+				for (int k : oneRow) {
+					datas.get(sheetInfor[k][j]).conflictCells.add(new Position(k, j));
+				}
+			}
+
+			
+
+		}
+		printSheet(sheetInfor);
+	}
+	
 	public void updateDataBySheet() {
 		bestResult = new ResultType(classNum, lessonNum, everyWeek);
 		beginResult = new ResultType(classNum, lessonNum, everyWeek);
@@ -517,12 +592,12 @@ public class SA {
 		// new Thread(new WriteData(parm,
 		// "C:\\SALog\\改进的sa\\runTime-"+date+".txt")).start();;
 		if (bestCostflu.size() == 0) {
-			System.out.println("无解");
+			logger.info("无解\r\n");
 		} else {
-			System.out.println(
-					"best cost information:" + bestCostflu.size() + "    " + bestCostflu.get(bestCostflu.size() - 1));
+			logger.info(
+					"best cost information:" + bestCostflu.size() + "    " + bestCostflu.get(bestCostflu.size() - 1)+"\r\n");
 			for (int i = 0; i < bestCostflu.size(); i++) {
-				System.out.print(bestCostflu.get(i) + "=>");
+				logger.info(bestCostflu.get(i) + "=>");
 			}
 		}
 		if (noConflict == true) {
@@ -533,7 +608,7 @@ public class SA {
 				sumConnectNumber += myDatas.get(i).connectCells.size();
 
 			}
-			System.out.println("最后剩余连堂"+sumConnectNumber);
+			logger.info("最后剩余连堂"+sumConnectNumber+"\n");
 			return bestResult;
 		} else
 			return null;
@@ -543,7 +618,7 @@ public class SA {
 	}
 
 	public boolean checkResult(ResultType result) {
-		System.out.println("cheack result");
+		logger.info("cheack result\n");
 		int sheet[][] = result.sheetInfor;
 		ArrayList<allData> mydatdas = result.datas;
 		ArrayList<Integer> teachIndex = new ArrayList<>();
@@ -563,11 +638,11 @@ public class SA {
 					tNums.set(k, tNums.get(k) + 1);
 				}
 			}
-			System.out.println("第" + (i + 1) + "班信息：");
+			logger.info("第" + (i + 1) + "班信息：");
 
 			for (int a = 0; a < tNums.size(); a++) {
-				System.out.println(mydatdas.get(teachIndex.get(a)).teacherName + "老师:" + tNums.get(a) + "节"
-						+ mydatdas.get(teachIndex.get(a)).courseName + "课");
+				logger.info(mydatdas.get(teachIndex.get(a)).teacherName + "老师:" + tNums.get(a) + "节"
+						+ mydatdas.get(teachIndex.get(a)).courseName + "课\n");
 			}
 
 		}
@@ -748,8 +823,8 @@ public class SA {
 					}
 
 					int t1 = sheet[cl.classX][onelessonCon], t2 = sheet[cl.classX][cl.timeY];
-					System.out.println("冲突交换：" + "(" + cl.classX + "," + cl.timeY + ")" + "<==>" + "(" + cl.classX + ","
-							+ onelessonCon + ")");
+					logger.info("冲突交换：" + "(" + cl.classX + "," + cl.timeY + ")" + "<==>" + "(" + cl.classX + ","
+							+ onelessonCon + ")\n");
 					Position p1 = new Position(cl.classX, onelessonCon), p2 = new Position(cl.classX, cl.timeY);
 					allData a1 = result.datas.get(t1), a2 = result.datas.get(t2);
 					for (Position tp : a1.arrangeCells) {
@@ -801,6 +876,14 @@ public class SA {
 					sheet[cl.classX][onelessonCon] = t2;
 					sheet[cl.classX][cl.timeY] = t1;
 
+					int sum=0;
+					updateDataBySheet(sheet);
+					for(int p=0;p<this.datas.size();p++){
+						if(this.datas.get(p).conflictCells.size()!=0){
+							sum+=this.datas.get(p).conflictCells.size();
+						}
+					}
+					logger.info("conflict: "+sum+"\n");
 				}
 			}
 
@@ -985,8 +1068,8 @@ public class SA {
 				// }
 
 				int t1 = sheet[cl.classX][timeY], t2 = sheet[cl.classX][cl.timeY];
-				System.out.println("连堂交换：" + "(" + cl.classX + "," + cl.timeY + ")" + "<==>" + "(" + cl.classX + ","
-						+ timeY + ")");
+				logger.info("连堂交换：" + "(" + cl.classX + "," + cl.timeY + ")" + "<==>" + "(" + cl.classX + ","
+						+ timeY + ")\n");
 				Position p1 = new Position(cl.classX, timeY), p2 = new Position(cl.classX, cl.timeY);
 				allData a1 = result.datas.get(t1), a2 = result.datas.get(t2);
 				for (Position tp : a1.arrangeCells) {
@@ -1037,6 +1120,22 @@ public class SA {
 				sheet[cl.classX][timeY] = t2;
 				sheet[cl.classX][cl.timeY] = t1;
 
+
+				int sum=0;
+				updateDataBySheet(sheet);
+				for(int p=0;p<this.datas.size();p++){
+					if(this.datas.get(p).conflictCells.size()!=0){
+						sum+=this.datas.get(p).conflictCells.size();
+					}
+				}
+				logger.info("conflict: "+sum+"\n");
+				sum=0;
+				for(int p=0;p<this.datas.size();p++){
+					if(this.datas.get(p).connectCells.size()!=0){
+						sum+=this.datas.get(p).connectCells.size();
+					}
+				}
+				logger.info("connect: "+sum+"\n");
 			}
 
 		} else {
@@ -1177,7 +1276,7 @@ public class SA {
 			int t1 = sheet[c1][l1];
 			int t2 = sheet[c2][l2];
 
-			System.out.println("随机交换：" + "(" + c1 + "," + l1 + ")" + "<==>" + "(" + c2 + "," + l2 + ")");
+			logger.info("随机交换：" + "(" + c1 + "," + l1 + ")" + "<==>" + "(" + c2 + "," + l2 + ")"+"\r\n");
 			allData a1 = result.datas.get(t1), a2 = result.datas.get(t2);
 			for (Position tp : a1.arrangeCells) {
 				if (tp.classX == c1 && tp.timeY == l1) {
