@@ -601,14 +601,21 @@ public class SA {
 			}
 		}
 		if (noConflict == true) {
-			printSheet(bestResult.sheetInfor);
-			ArrayList<allData>myDatas=bestResult.datas;
-			int sumConnectNumber = 0;
-			for (int i = 0; i < myDatas.size(); i++) {
-				sumConnectNumber += myDatas.get(i).connectCells.size();
-
+			int sum=0;
+			updateDataBySheet(bestResult.sheetInfor);
+			for(int p=0;p<this.datas.size();p++){
+				if(this.datas.get(p).conflictCells.size()!=0){
+					sum+=this.datas.get(p).conflictCells.size();
+				}
 			}
-			logger.info("最后剩余连堂"+sumConnectNumber+"\n");
+			logger.info("最后冲突: "+sum+"\n");
+			sum=0;
+			for(int p=0;p<this.datas.size();p++){
+				if(this.datas.get(p).connectCells.size()!=0){
+					sum+=this.datas.get(p).connectCells.size();
+				}
+			}
+			logger.info("最后连堂: "+sum+"\n");
 			return bestResult;
 		} else
 			return null;
@@ -713,27 +720,35 @@ public class SA {
 			ArrayList<Position> exchangeY = new ArrayList<>();
 			ArrayList<Double> suitable = new ArrayList<>();
 			int onelessonCon = lessonCon.get(i);// 当前冲突的课时
+			List<Boolean>permission=new ArrayList<>();
 			for (int j = 0; j < oneclassCon.size(); j++) {
+				
 				ArrayList<Integer> allowedLesson = new ArrayList<>();
 				int c = oneclassCon.get(j);
 				// ArrayList<Integer> teachers = classIncludeTeacher.get(c);//
 				// 获得每个冲突班级的老师
-
-				for (int x = 0; x < needLessons; x++) {
-					if (everyWeek[x] == false) {
-						if (!tData.weekY.contains(x)) {
-							if (fixTable[c][x] == 0) {
-								if (!datas.get(sheet[c][x]).weekY.contains(onelessonCon)) {
-									allowedLesson.add(x);
+				if(fixTable[c][onelessonCon]==0){
+					for (int x = 0; x < needLessons; x++) {
+						if (everyWeek[x] == false) {
+							if (!tData.weekY.contains(x)) {
+								if (fixTable[c][x] == 0) {
+									if (!datas.get(sheet[c][x]).weekY.contains(onelessonCon)) {
+										allowedLesson.add(x);
+									}
 								}
+
 							}
-
 						}
-					}
 
+					}
+					
 				}
+				
+				
+			
 
 				if (allowedLesson.size() != 0) {
+					permission.add(true);
 					ArrayList<Double> allowedCost = new ArrayList<>(allowedLesson.size());
 					double repet = 600.0;
 
@@ -792,17 +807,41 @@ public class SA {
 					exchangeY.add(new Position(c, allowedLesson.get(site)));
 					suitable.add(allowedCost.get(site));
 
-				} else {
-					throw new Myexception("meiban");
+				} else{
+					permission.add(false);
+					exchangeY.add(new Position(-1,-1));
+					suitable.add(-1.0);
 				}
 			}
+			int can=0;
+			for(boolean f:permission){
+				if(f){
+					can++;
+				}
+			}
+			
+			int myIndex = 0;//最小的适应值，要保留不换的。
+			
+			int state=oneclassCon.size()-can;
+			if(state==0){
+				for (int x = 1; x < suitable.size(); x++) {
+					if (suitable.get(x) < suitable.get(myIndex)) {
+						myIndex = x;
+					}
+				}
+			}else if(state==1){
+				for(int x=0;x<permission.size();x++){
+					if(!permission.get(x)){
+						myIndex=x;
+						break;
+					}
+				}
+			}else {
+				throw new Myexception("无解");
+			}
+			
 
-			int myIndex = 0;
-			for (int x = 1; x < suitable.size(); x++) {
-				if (suitable.get(x) < suitable.get(myIndex)) {
-					myIndex = x;
-				}
-			}
+			
 
 			for (int x = 0; x < exchangeY.size(); x++) {
 				if (x == myIndex) {

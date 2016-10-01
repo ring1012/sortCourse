@@ -103,17 +103,17 @@ public class SortContoller {
 	@RequestMapping(value = "/change.action", method = RequestMethod.POST)
 	public String change() {
 		try {
-
-			Object obj = request.getSession().getAttribute("myCourse");
-			startSortCourse myCourse = (startSortCourse) obj;
-			ResultType ret = myCourse.changeAndDeal();
-			request.setAttribute("result", ret);
-
+			String fixTable=request.getParameter("fixTable");
+			String changeStr=request.getParameter("changeStr");
+			startSortCourse rt=(startSortCourse)request.getSession().getAttribute("myCourse");
+			changeService.excute(fixTable,changeStr,rt,request);
+			
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			e.printStackTrace();
+			// TODO: handle exception
 		}
-		
-		return "result";
+	
+  		return "result";
 	}
 
 }
