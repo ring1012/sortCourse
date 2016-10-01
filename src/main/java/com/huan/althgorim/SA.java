@@ -1018,6 +1018,7 @@ public class SA {
 			return false;
 		}
 		int c = focusPosition.classX;
+		timeY=focusPosition.timeY;
 		ArrayList<Integer> allowed = new ArrayList<>();
 
 		for (int i = 0; i < needLessons; i++) {
