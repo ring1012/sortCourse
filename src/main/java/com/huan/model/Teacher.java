@@ -1,6 +1,5 @@
 package com.huan.model;
 
-import java.util.List;
 
 public class Teacher {
 	private String teacherName;
@@ -8,7 +7,7 @@ public class Teacher {
 	private int perWeekClassNum;
 	private int perWeekTimeNum;
 	private boolean IsHead;
-	
+	private boolean IsNext;
 	public Teacher(){}
 	
 	public Teacher(String teacherName, String courseName, int perWeekClassNum, int perWeekTimeNum, boolean isHead) {
@@ -49,6 +48,15 @@ public class Teacher {
 	public void setIsHead(boolean isHead) {
 		IsHead = isHead;
 	}
+
+	public boolean isIsNext() {
+		return IsNext;
+	}
+
+	public void setIsNext(boolean isNext) {
+		IsNext = isNext;
+	}
+	
 	
 	
 }

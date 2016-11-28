@@ -8,7 +8,7 @@
 <mapper namespace="com.huan.teacher.dao.ITeacherDao">
 	<select id="findAll" resultType="com.huan.model.Teacher">
 		select
-		teacherName,courseName,perWeekClassNum,perWeekTimeNum,IsHead from schoolinfor
+		teacherName,courseName,perWeekClassNum,perWeekTimeNum,IsHead,IsNext from schoolinfor
 	</select>
 	<select id="selectByid" parameterType="int" resultType="com.huan.model.Teacher">
 		SELECT * FROM PERSON WHERE ID = #{id}

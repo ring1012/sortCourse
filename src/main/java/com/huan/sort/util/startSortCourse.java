@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.huan.althgorim.SA;
+import com.huan.definition.ConstantVal;
 import com.huan.definition.Position;
 import com.huan.definition.ResultType;
 import com.huan.exception.Myexception;
@@ -115,6 +116,7 @@ public class startSortCourse {
 		Integer c_arts[] = new Integer[lessonNum];
 		Integer c_science[] = new Integer[lessonNum];
 		Integer c_sport[] = new Integer[lessonNum];
+		Integer c_empty[]=new Integer[lessonNum];
 		Integer c_other[] = new Integer[lessonNum];
 
 		for (int i = 0; i < morning; i++) {
@@ -125,6 +127,8 @@ public class startSortCourse {
 			c_english[i] = morning - i;
 
 			c_sport[i] = 60;
+			
+			c_empty[i]=Integer.MAX_VALUE;
 
 			c_arts[i] = morning - i+2;
 
@@ -133,6 +137,7 @@ public class startSortCourse {
 			c_other[i] = morning - i+1;
 
 		} // morning
+		c_empty[morning-1]=1;
 
 		for (int i = morning; i < afternoon / 2 + morning; i++) {
 
@@ -143,6 +148,8 @@ public class startSortCourse {
 			c_english[i] = i - 2;
 
 			c_sport[i] = 60;
+			
+			c_empty[i]=Integer.MAX_VALUE;
 
 			c_arts[i] = i - 1;
 
@@ -164,6 +171,9 @@ public class startSortCourse {
 			else {
 				c_sport[i] = 60;
 			}
+			
+			c_empty[i]=Integer.MAX_VALUE;
+			
 			c_arts[i] = afternoon / 2 + morning+2 - i;
 
 			c_science[i] = i - (afternoon / 2 + morning-1);
@@ -171,6 +181,7 @@ public class startSortCourse {
 			c_other[i] = 1;
 
 		} // half of afternoon
+		c_empty[lessonNum-1]=1;
 
 		definedCost.add(c_chinese);// 0
 		definedCost.add(c_math);// 1
@@ -178,7 +189,8 @@ public class startSortCourse {
 		definedCost.add(c_sport);// 3
 		definedCost.add(c_arts);// 4
 		definedCost.add(c_science);// 5
-		definedCost.add(c_other);// 6
+		definedCost.add(c_empty);// 6
+		definedCost.add(c_other);// 7
 //		System.out.println("===========cost===");
 //		for (int i = 0; i < 7; i++) {
 //
@@ -313,7 +325,15 @@ public class startSortCourse {
 	public void rankTeacher() {
 		int t = 0;
 		for (int i = 0; i < teacherNum; i++) {
-			if (datas.get(i).courseIndex == 3 && t != i) {
+			if (datas.get(i).courseIndex == ConstantVal.COURSE_EMPTY && t != i) {
+				allData temp = datas.get(i);
+				datas.set(i, datas.get(t));
+				datas.set(t, temp);
+				t++;
+			}
+		}
+		for (int i = t; i < teacherNum; i++) {
+			if (datas.get(i).courseIndex == ConstantVal.COURSE_SPORT && t != i) {
 				allData temp = datas.get(i);
 				datas.set(i, datas.get(t));
 				datas.set(t, temp);
@@ -424,19 +444,21 @@ public class startSortCourse {
 
 	public int searchCharacter(String courseName) {
 		if (courseName.equals("语文"))
-			return 0;
+			return ConstantVal.COURSE_CHINESE;
 		else if (courseName.equals("数学"))
-			return 1;
+			return ConstantVal.COURSE_MATH;
 		else if (courseName.equals("英语"))
-			return 2;
+			return ConstantVal.COURSE_ENGLISH;
 		else if (courseName.equals("体育"))
-			return 3;
+			return ConstantVal.COURSE_SPORT;
 		else if (courseName.equals("政治") || courseName.equals("历史") || courseName.equals("地理"))
-			return 4;
+			return ConstantVal.COURSE_ARTS;
 		else if (courseName.equals("物理") || courseName.equals("化学") || courseName.equals("生物"))
-			return 5;
-		else
-			return 6;
+			return ConstantVal.COURSE_SCIENCE;
+		else if(courseName.equals(""))
+			return ConstantVal.COURSE_EMPTY;
+		else 
+			return ConstantVal.COURSE_OTHER;
 
 	}
 
@@ -462,6 +484,30 @@ public class startSortCourse {
 		int y = a % (daysPerWeek * lessonNum);
 		return new Position(x, y);
 
+	}
+	
+	public void paramCheck() throws Myexception{
+		int tls=0;
+		for(allData data:datas){
+			tls+=data.perWeekClassNum*data.perWeekTimeNum;
+		}
+		if(tls%classNum!=0){
+			throw new Myexception("总教师课时数除以班级数目不等于零！");
+		}
+		int oneWeek=5*(morning+afternoon)+saturday+sunday;
+		int remain=oneWeek*classNum-tls;
+		if(remain<0){
+			throw new Myexception("所有老师周课时超过每周可安排课时");
+		}
+		int supplement=remain/classNum;
+		if(supplement>0){
+			for(int i=0;i<classNum;i++){
+				datas.add(new allData("", "", 1, supplement, false, false, -1));
+				teacherNum++;
+			}
+		}
+		
+		
 	}
 
 }

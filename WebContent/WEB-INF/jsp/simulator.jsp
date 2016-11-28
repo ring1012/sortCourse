@@ -37,6 +37,7 @@
 																	+ "<td><input type='number' name='perWeekClassNum'  min='1' /></td>"
 																	+ "<td><input type='number' name='perWeekTimeNum'  min='1' /></td>"
 																	+ "<td><input type='checkbox' name='IsHead' value='"+_len+"'/></td>"
+																	+ "<td><input type='checkbox' name='IsNext' value='"+_len+"'/></td>"
 																	+ "<td><a href=\'#\' onclick=\'deltr("
 																	+ _len
 																	+ ")\'>删除</a></td>"
@@ -100,20 +101,20 @@
 							}
 						}
 					}
-					var sum1 = 0;
-					for ( var key in milasUrl) {
-						everyRow[key] = milasUrl[key];
-						sum1 += everyRow[key][2] * everyRow[key][3];
-					}
+// 					var sum1 = 0;
+// 					for ( var key in milasUrl) {
+// 						everyRow[key] = milasUrl[key];
+// 						sum1 += everyRow[key][2] * everyRow[key][3];
+// 					}
 					var mNum = parseInt($(".morning").val());
 					var aNum = parseInt($(".afternoon").val());
 					var saNum = parseInt($(".saturday").val());
 					var suNum = parseInt($(".sunday").val());
-					var sum2 = count * (5 * (mNum + aNum) + saNum + suNum);
-					if (sum1 != sum2) {
-						alert("年级信息显示的课时总数目与教师总课时数目不相等")
-						return false;
-					}
+// 					var sum2 = count * (5 * (mNum + aNum) + saNum + suNum);
+// 					if (sum1 != sum2) {
+// 						alert("年级信息显示的课时总数目与教师总课时数目不相等")
+// 						return false;
+// 					}
 
 					$('form').submit();
 				})
@@ -127,8 +128,10 @@
 			$("tr[id=\'" + i + "\']").attr("id", (i - 1));
 			$("tr[id=\'" + (i - 1) + "\'] td:nth-child(1)").html(i - 1);
 			$("tr[id=\'" + (i - 1) + "\'] td:nth-child(6) input:checkbox").val(
-					i - 1)
-			$("tr[id=\'" + (i - 1) + "\'] td:nth-child(7) a").attr("onclick",
+					i - 1);
+			$("tr[id=\'" + (i - 1) + "\'] td:nth-child(7) input:checkbox").val(
+					i - 1);
+			$("tr[id=\'" + (i - 1) + "\'] td:nth-child(8) a").attr("onclick",
 					"deltr(" + (i - 1) + ")");
 		}
 
@@ -165,6 +168,7 @@
 					<td>任教班级数目</td>
 					<td>每周每班课时数目</td>
 					<td>是否班主任</td>
+					<td>是否单/双周</td>
 				</tr>
 
 				<%
@@ -191,6 +195,18 @@
 						} else {
 					%>
 					<td><input type="checkbox" name="IsHead" value=<%=(k + 1)%> /></td>
+					<%
+						}
+					%>
+					<%
+						if (teachers.get(k).isIsNext()) {
+					%>
+					<td><input type="checkbox" name="IsNext" checked="true"
+						value=<%=(k + 1)%> /></td>
+					<%
+						} else {
+					%>
+					<td><input type="checkbox" name="IsNext" value=<%=(k + 1)%> /></td>
 					<%
 						}
 					%>

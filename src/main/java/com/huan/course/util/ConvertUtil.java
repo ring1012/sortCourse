@@ -1,7 +1,9 @@
 package com.huan.course.util;
-
 public class ConvertUtil {
 	public static int[] parsIntArray(String []param){
+		if(param==null){
+			return new int[0];
+		}
 		int ret[]=new int [param.length];
 		try {
 			for(int i=0;i<param.length;i++){
@@ -13,5 +15,4 @@ public class ConvertUtil {
 		}
 		return ret;
 	}
-
 }
