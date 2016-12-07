@@ -1,22 +1,25 @@
 package com.huan.model;
 
+import java.util.ArrayList;
 
 public class Teacher {
-	private String teacherName;
-	private String courseName;
-	private int perWeekClassNum;
-	private int perWeekTimeNum;
-	private boolean IsHead;
-	private boolean IsNext;
-	public Teacher(){}
+	public String teacherName;
+	public String courseName;
+	public int perWeekClassNum;
+	public int perWeekTimeNum;
+	public boolean IsHead;
+	public boolean IsNext;
+	public int courseIndex;
+	public int teacherIndex;
+	public ArrayList<Integer>classes;
 	
 	public Teacher(String teacherName, String courseName, int perWeekClassNum, int perWeekTimeNum, boolean isHead) {
-		super();
 		this.teacherName = teacherName;
 		this.courseName = courseName;
 		this.perWeekClassNum = perWeekClassNum;
 		this.perWeekTimeNum = perWeekTimeNum;
-		IsHead = isHead;
+		this.IsHead = isHead;
+		this.classes=new ArrayList<>();
 	}
 	public String getTeacherName() {
 		return teacherName;

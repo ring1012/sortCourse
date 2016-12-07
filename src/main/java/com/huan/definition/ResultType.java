@@ -2,12 +2,12 @@ package com.huan.definition;
 
 import java.util.ArrayList;
 
-import com.huan.model.allData;
+import com.huan.model.WholeTeacher;
 
 
 public class ResultType {
 
-	public ArrayList<allData> datas;
+	public ArrayList<WholeTeacher> datas;
 	public int[][] sheetInfor;
 	public int classNum;
 	public int lessonNum;
@@ -17,7 +17,7 @@ public class ResultType {
 	public double sumCost;
 	
 	
-	public ResultType(ArrayList<allData> datas, int[][] sheetInfor) {
+	public ResultType(ArrayList<WholeTeacher> datas, int[][] sheetInfor) {
 		this.datas =new ArrayList<>(datas);
 		this.sheetInfor=new int[sheetInfor.length][sheetInfor[0].length];
 		for(int i=0;i<sheetInfor.length;i++){
@@ -42,13 +42,13 @@ public class ResultType {
 		double sum=0,p1=0,p2=0,p3=0;
 		for(int i=0;i<datas.size();i++){
 			Integer certainCost[] = definedCost.get(datas.get(i).courseIndex);
-			for(int j=0;j<datas.get(i).arrangeCells.size();j++){
-				Position temp=datas.get(i).arrangeCells.get(j);
+			for(int j=0;j<datas.get(i).wholePro.arrangeCells.size();j++){
+				Position temp=datas.get(i).wholePro.arrangeCells.get(j);
 				p1+=certainCost[temp.timeY%lessonNum];
 			}
 			
-			p2+=conflictCost*datas.get(i).conflictCells.size();
-			p3+=connectCost*datas.get(i).connectCells.size()/2;
+			p2+=conflictCost*datas.get(i).wholePro.conflictCells.size();
+			p3+=connectCost*datas.get(i).wholePro.connectCells.size()/2;
 			
 		}
 				

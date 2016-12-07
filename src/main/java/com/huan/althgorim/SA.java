@@ -1,11 +1,10 @@
 package com.huan.althgorim;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
@@ -13,15 +12,19 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 
 import com.huan.course.util.ConvertUtil;
+import com.huan.definition.ConstantVal;
 import com.huan.definition.MyRandom;
 import com.huan.definition.Mytime;
 import com.huan.definition.Position;
 import com.huan.definition.ResultType;
 import com.huan.exception.Myexception;
-import com.huan.model.allData;
+import com.huan.model.HalfTeacher;
+import com.huan.model.WholeTeacher;
+import com.huan.sort.util.ProcessUtil;
+import com.huan.model.Teacher;
 
 public class SA {
-	private static final Logger logger=Logger.getLogger(SA.class);
+	private static final Logger logger = Logger.getLogger(SA.class);
 
 	private int N;// 每个温度迭代步长
 	private int T;// 降温次数
@@ -34,7 +37,9 @@ public class SA {
 	public boolean noConflict = false;
 	public boolean success = false;// have answer
 	public int[][] sheetInfor;
-	public List<allData> datas;
+	public List<Teacher> datas;
+	public List<WholeTeacher> wholeTeachers;
+	public List<HalfTeacher> halfTeachers;
 	public ArrayList<Integer[]> definedCost;
 	public ResultType bestResult;
 	public double minCost = 99999999;
@@ -48,6 +53,20 @@ public class SA {
 	public int fixTable[][];
 	public ArrayList<Double> bestCostflu = new ArrayList<>();
 	public ArrayList<Double> tempCostflu = new ArrayList<>();
+
+	// 程序索引转数据库索引
+	private Map<Integer, Integer> pgi2dbi = new HashMap<>();
+	// 数据库索引转程序索引
+	private Map<Integer, Integer> dbi2pgi = new HashMap<>();
+	// 程序索引转单双周程序索引
+	private Map<Integer, Integer> pgi2half = new HashMap<>();
+	// 程序索引转全周索引
+	private Map<Integer, Integer> pgi2whole = new HashMap<>();
+
+	private int[][] oddSheet;
+	private int[][] evenSheet;
+	/** true:even false:odd */
+	private boolean alter[];
 
 	/**
 	 * constructor of GA
@@ -68,7 +87,7 @@ public class SA {
 	 *            各班级包含的老师索引号
 	 * 
 	 **/
-	public SA(int n, int t, double tt, double aa, List<allData> datas, ArrayList<Integer[]> definedCost,
+	public SA(int n, int t, double tt, double aa, List<Teacher> datas, ArrayList<Integer[]> definedCost,
 			ArrayList<ArrayList<Integer>> classIncludeTeacher, int needLessons, int lessonNum, int classNum,
 			boolean[] everyWeek) {
 		N = n;
@@ -79,6 +98,24 @@ public class SA {
 		sheetInfor = new int[classNum][needLessons];
 		// this.datas=new ArrayList<>(datas);
 		this.datas = datas;
+		halfTeachers = new ArrayList<>();
+		wholeTeachers = new ArrayList<>();
+		int count = 0;
+		int half = 0;
+		int whole = 0;
+		for (Teacher each : datas) {
+			pgi2dbi.put(count, each.teacherIndex);
+			dbi2pgi.put(each.teacherIndex, count);
+
+			if (each instanceof HalfTeacher) {
+				pgi2half.put(count, half++);
+				halfTeachers.add((HalfTeacher) each);
+			} else {
+				pgi2whole.put(count, whole++);
+				wholeTeachers.add((WholeTeacher) each);
+			}
+			count++;
+		}
 		this.definedCost = definedCost;
 		this.classIncludeTeacher = classIncludeTeacher;
 
@@ -92,9 +129,136 @@ public class SA {
 		this.tempResult = new ResultType(classNum, lessonNum, everyWeek);
 		this.beginResult = new ResultType(classNum, lessonNum, everyWeek);
 		this.fixTable = new int[this.classNum][this.lessonNum * 7];
+		this.oddSheet = new int[this.classNum][this.lessonNum * 7];
+		this.evenSheet = new int[this.classNum][this.lessonNum * 7];
+		this.alter = new boolean[classNum];
+
+		for (int i = 0; i < classNum; i++) {
+			alter[i] = random.nextBoolean();
+		}
 	}
 
-	public void initGroup() {
+	// public class HalfCourse implements Comparable<HalfCourse>{
+	//
+	//
+	// private String courseName;
+	// private int perWeekLessons;
+	//
+	//
+	// public String getCourseName() {
+	// return courseName;
+	// }
+	//
+	//
+	// public void setCourseName(String courseName) {
+	// this.courseName = courseName;
+	// }
+	//
+	//
+	// public int getPerWeekLessons() {
+	// return perWeekLessons;
+	// }
+	//
+	//
+	// public void setPerWeekLessons(int perWeekLessons) {
+	// this.perWeekLessons = perWeekLessons;
+	// }
+	//
+	//
+	// @Override
+	// public int compareTo(HalfCourse o) {
+	// return perWeekLessons-o.getPerWeekLessons();
+	// }
+	//
+	// @Override
+	// public boolean equals(Object o){
+	// String itsName=(String)o;
+	// return courseName.equals(itsName);
+	// }
+	//
+	//
+	// public HalfCourse(String courseName, int perWeekLessons) {
+	// this.courseName = courseName;
+	// this.perWeekLessons = perWeekLessons;
+	// }
+	//
+	//
+	// }
+	//
+	// public List<HalfCourse> halfDifCourse() {
+	// if(halfTeachers.size()==0){
+	// return null;
+	// }
+	// boolean sameFlag = false;
+	// List<HalfCourse>recordCourses=new ArrayList<>();
+	// recordCourses.add(new
+	// HalfCourse(halfTeachers.get(0).courseName,halfTeachers.get(0).perWeekClassNum));
+	// int teacherNum=halfTeachers.size();
+	// for (int i = 0; i < teacherNum; i++) {
+	// sameFlag = false;
+	// for (int j = 0; j < recordCourses.size(); j++) {
+	// if
+	// (halfTeachers.get(i).courseName.equals(recordCourses.get(j).getCourseName()))
+	// {
+	// sameFlag = true;
+	// break;
+	//
+	// }
+	// }
+	// if (!sameFlag) {
+	// recordCourses.add(new
+	// HalfCourse(halfTeachers.get(i).courseName,halfTeachers.get(i).perWeekClassNum));
+	// }
+	// }
+	// return recordCourses;
+	// }
+
+	public void arrangeHalf() {
+		// List<HalfCourse>recordCourses=halfDifCourse();
+		if (halfTeachers.size() != 0) {
+			// Collections.sort(recordCourses);
+			setBlankEmpty(oddSheet);
+			setBlankEmpty(evenSheet);
+			for (HalfTeacher teacher : halfTeachers) {
+				arrangeOneHalfTeacher(teacher, oddSheet, evenSheet);
+			}
+			makeHalfWork();
+		}
+
+	}
+
+	
+	public void makeHalfWork(){
+//		while(!isHalfConflict()){
+//			
+//		}
+		
+	}
+	
+	public void setBlankEmpty(int sheet[][]) {
+		int row = sheet.length;
+		int col = sheet[0].length;
+		for (int i = 0; i < row; i++) {
+			for (int j = 0; j < col; j++) {
+				sheet[i][j] = ConstantVal.BLANK_EMPTY;
+			}
+		}
+	}
+
+	public void arrangeOneHalfTeacher(HalfTeacher teacher, int oddSheet[][], int evenSheet[][]) {
+		ArrayList<Integer> myClasses = (ArrayList<Integer>) teacher.classes;
+		for (int oneClass : myClasses) {
+			if (alter[oneClass] == false) {//odd
+				
+			} else {//even
+
+			}
+			alter[oneClass] = !alter[oneClass];
+		}
+
+	}
+
+	public void initWhole() {
 
 		boolean visited[] = new boolean[everyWeek.length];
 
@@ -105,7 +269,12 @@ public class SA {
 				visited[k] = everyWeek[k];
 			}
 			for (int t = 0; t < teacherIndex.size(); t++) {// 换班级中的老师
-				allData myTeacher = datas.get(teacherIndex.get(t));
+				Teacher et = datas.get(teacherIndex.get(t));
+				if (et instanceof HalfTeacher)
+					continue;
+				WholeTeacher myTeacher = (WholeTeacher) et;
+				ProcessUtil wholePro = myTeacher.wholePro;
+				wholePro.classes = myTeacher.classes;
 				ArrayList<Integer> YConflict = new ArrayList<>();
 				int lessons = myTeacher.perWeekTimeNum;
 				Integer certainCost[] = definedCost.get(myTeacher.courseIndex);
@@ -117,7 +286,7 @@ public class SA {
 					for (int k = 0; k < visited.length; k++) {
 						if (visited[k] == false) {
 							double aloneSuit = 60.0 / (certainCost[k % lessonNum] + additionCost(visited, k)
-									+ conflictCost(myTeacher, k));
+									+ conflictCost(wholePro, k));
 							suitInfor.put(k, aloneSuit);
 						}
 					}
@@ -138,21 +307,21 @@ public class SA {
 					}
 
 					visited[n] = true;
-					if (myTeacher.weekY.contains(n) && !YConflict.contains(n)) {
+					if (wholePro.weekY.contains(n) && !YConflict.contains(n)) {
 						YConflict.add(n);
 						// myTeacher.conflictPosition.add(new Position(i, n));
 					} else {
-						myTeacher.weekY.add(n);
+						wholePro.weekY.add(n);
 					}
-					myTeacher.arrangeCells.add(new Position(i, n));
+					wholePro.arrangeCells.add(new Position(i, n));
 
 				}
 
 				for (int h = 0; h < YConflict.size(); h++) {
-					for (int s = 0; s < myTeacher.arrangeCells.size(); s++) {
-						if (myTeacher.arrangeCells.get(s).timeY == YConflict.get(h)) {
-							if (!myTeacher.conflictCells.contains(myTeacher.arrangeCells.get(s)))
-								myTeacher.conflictCells.add(myTeacher.arrangeCells.get(s));
+					for (int s = 0; s < wholePro.arrangeCells.size(); s++) {
+						if (wholePro.arrangeCells.get(s).timeY == YConflict.get(h)) {
+							if (!wholePro.conflictCells.contains(wholePro.arrangeCells.get(s)))
+								wholePro.conflictCells.add(wholePro.arrangeCells.get(s));
 						}
 					}
 				}
@@ -162,8 +331,13 @@ public class SA {
 		}
 
 		for (int i = 0; i < datas.size(); i++) {
-			for (int j = 0; j < datas.get(i).arrangeCells.size(); j++) {
-				Position temp = datas.get(i).arrangeCells.get(j);
+			Teacher theTea = datas.get(i);
+			if (theTea instanceof HalfTeacher) {
+				continue;
+			}
+			ProcessUtil whoPro = ((WholeTeacher) theTea).wholePro;
+			for (int j = 0; j < whoPro.arrangeCells.size(); j++) {
+				Position temp = whoPro.arrangeCells.get(j);
 				sheetInfor[temp.classX][temp.timeY] = i;
 			}
 		}
@@ -206,9 +380,38 @@ public class SA {
 		// printConflict(datas);
 	}
 
-	public void searchConnection(ResultType result) {
-		ArrayList<allData> myDatas = result.datas;
-		int sheetInfor[][] = result.sheetInfor;
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public <T extends Teacher> void searchConnection(int sheetInfor[][], List<T> oneTypeTeacher, int type)
+			throws Myexception {
+
+		List targetTeacher = null;
+		List<ProcessUtil> myDatas = new ArrayList<>();
+		Map<Integer, Integer> convert = null;
+		switch (type) {
+		case ConstantVal.PROCESS_WHOLE:
+			targetTeacher = (List<WholeTeacher>) oneTypeTeacher;
+			for (WholeTeacher wt : (List<WholeTeacher>) targetTeacher) {
+				myDatas.add(wt.wholePro);
+			}
+			convert = pgi2whole;
+			break;
+		case ConstantVal.PROCESS_EVEN:
+			targetTeacher = (List<HalfTeacher>) oneTypeTeacher;
+			for (HalfTeacher wt : (List<HalfTeacher>) targetTeacher) {
+				myDatas.add(wt.evenUtil);
+			}
+			convert = pgi2half;
+			break;
+		case ConstantVal.PROCESS_ODD:
+			targetTeacher = (List<HalfTeacher>) oneTypeTeacher;
+			for (HalfTeacher wt : (List<HalfTeacher>) targetTeacher) {
+				myDatas.add(wt.oddUtil);
+			}
+			convert = pgi2half;
+			break;
+		default:
+			throw new Myexception(String.format("searchConnection搜索连堂时异常，不支持处理%s类型", type));
+		}
 		for (int i = 0; i < myDatas.size(); i++) {
 			myDatas.get(i).connectCells.clear();
 		}
@@ -218,21 +421,24 @@ public class SA {
 				if (everyWeek[j] == false) {
 					int count = 1;
 					int current = sheetInfor[i][j];
+					if (current == -1)
+						continue;
 					Position temp = new Position(i, j);
-					myDatas.get(current).connectCells.add(temp);
+					ProcessUtil focus = myDatas.get(convert.get(current));
+					focus.connectCells.add(temp);
 					while (count + j < lessonNum * 7) {
 						if (current == sheetInfor[i][count + j]) {
-							myDatas.get(current).connectCells.add(new Position(i, count + j));
+							focus.connectCells.add(new Position(i, count + j));
 							count++;
 						} else {
 							if (count == 1) {
-								myDatas.get(current).connectCells.remove(temp);
+								focus.connectCells.remove(temp);
 							}
 							break;
 						}
 					}
 					if (count + j == lessonNum * 7 && count == 1) {
-						myDatas.get(current).connectCells.remove(temp);
+						focus.connectCells.remove(temp);
 					}
 					j += count;
 				} else {
@@ -245,8 +451,8 @@ public class SA {
 
 	public void printSheet(int sheet[][]) {
 		logger.info("\r\n\t");
-		for(int i=0;i<classNum;i++){
-			logger.info(i+"\t");
+		for (int i = 0; i < classNum; i++) {
+			logger.info(i + "\t");
 		}
 		logger.info("\r\n");
 		for (int j = 0; j < needLessons; j++) {
@@ -254,7 +460,7 @@ public class SA {
 			if (everyWeek[j] == false) {
 
 				for (int i = 0; i < classNum; i++) {
-					String temp=String.format("%s\t", datas.get(sheet[i][j]).teacherName);
+					String temp = String.format("%s\t", datas.get(sheet[i][j]).teacherName);
 					logger.info(temp);
 				}
 
@@ -287,7 +493,7 @@ public class SA {
 
 	}
 
-	public double conflictCost(allData myTeacher, int k) {
+	public double conflictCost(ProcessUtil myTeacher, int k) {
 		double res = 0;
 
 		if (myTeacher.weekY.contains(k)) {
@@ -298,45 +504,47 @@ public class SA {
 
 	}
 
-	public void printConflict(ArrayList<allData> datas) {
-		for (int i = 0; i < datas.size(); i++) {
-			System.out.print("name:" + datas.get(i).teacherName);
-			System.out.print(" course:" + datas.get(i).courseName);
-			System.out.print(" totalLessonsL:" + datas.get(i).perWeekClassNum * datas.get(i).perWeekTimeNum);
-			System.out.println();
-			System.out.println("normal");
-			for (int k = 0; k < datas.get(i).arrangeCells.size(); k++) {
-				Position tPosition = datas.get(i).arrangeCells.get(k);
-				System.out.print("(" + tPosition.classX + "," + tPosition.timeY + ")");
-			}
-			System.out.println();
-			System.out.print("conflict: ");
-			for (int k = 0; k < datas.get(i).conflictCells.size(); k++) {
-				Position tPosition = datas.get(i).conflictCells.get(k);
-				System.out.print("(" + tPosition.classX + "," + tPosition.timeY + ")");
-			}
-			System.out.println();
-			System.out.print("connect: ");
-			for (int k = 0; k < datas.get(i).connectCells.size(); k++) {
-				Position tPosition = datas.get(i).connectCells.get(k);
-				System.out.print("(" + tPosition.classX + "," + tPosition.timeY + ")");
-			}
-			System.out.println();
+	// public void printConflict(ArrayList<WholeTeacher> datas) {
+	// for (int i = 0; i < datas.size(); i++) {
+	// System.out.print("name:" + datas.get(i).teacherName);
+	// System.out.print(" course:" + datas.get(i).courseName);
+	// System.out.print(" totalLessonsL:" + datas.get(i).perWeekClassNum *
+	// datas.get(i).perWeekTimeNum);
+	// System.out.println();
+	// System.out.println("normal");
+	// for (int k = 0; k < datas.get(i).arrangeCells.size(); k++) {
+	// Position tPosition = datas.get(i).arrangeCells.get(k);
+	// System.out.print("(" + tPosition.classX + "," + tPosition.timeY + ")");
+	// }
+	// System.out.println();
+	// System.out.print("conflict: ");
+	// for (int k = 0; k < datas.get(i).conflictCells.size(); k++) {
+	// Position tPosition = datas.get(i).conflictCells.get(k);
+	// System.out.print("(" + tPosition.classX + "," + tPosition.timeY + ")");
+	// }
+	// System.out.println();
+	// System.out.print("connect: ");
+	// for (int k = 0; k < datas.get(i).connectCells.size(); k++) {
+	// Position tPosition = datas.get(i).connectCells.get(k);
+	// System.out.print("(" + tPosition.classX + "," + tPosition.timeY + ")");
+	// }
+	// System.out.println();
+	//
+	// int ttttt = datas.get(i).arrangeCells.size() +
+	// datas.get(i).conflictCells.size();
+	// if (ttttt == datas.get(i).perWeekClassNum * datas.get(i).perWeekTimeNum)
+	// System.out.println("this teacher arrange" + ttttt + "lessons");
+	// else {
+	// System.err.println("this teacher arrange" + ttttt + "lessons");
+	// }
+	// System.out.println();
+	// }
+	//
+	// }
 
-			int ttttt = datas.get(i).arrangeCells.size() + datas.get(i).conflictCells.size();
-			if (ttttt == datas.get(i).perWeekClassNum * datas.get(i).perWeekTimeNum)
-				System.out.println("this teacher arrange" + ttttt + "lessons");
-			else {
-				System.err.println("this teacher arrange" + ttttt + "lessons");
-			}
-			System.out.println();
-		}
-
-	}
-
-	public void changeAttr(int table[][], String exchange[],int sheet[][]) {
+	public void changeAttr(int table[][], String exchange[], int sheet[][]) throws Myexception {
 		this.fixTable = table;
-		this.sheetInfor=sheet;
+		this.sheetInfor = sheet;
 		for (int i = 0; i < exchange.length; i++) {
 			if (exchange[i].length() != 0) {
 				String opers[] = exchange[i].split("&");
@@ -349,12 +557,43 @@ public class SA {
 			}
 		}
 
-		updateDataBySheet();
+		updateDataBySheet(sheetInfor, wholeTeachers, ConstantVal.PROCESS_WHOLE);
 
 	}
 
-	public void updateDataBySheet(int sheetInfor[][]){
-		for (allData ad : datas) {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public <T extends Teacher> void updateDataBySheet(int sheetInfor[][], List<T> oneTypeTeacher, int type)
+			throws Myexception {
+		List targetTeacher = null;
+		List<ProcessUtil> myDatas = new ArrayList<>();
+		Map<Integer, Integer> convert = null;
+		switch (type) {
+		case ConstantVal.PROCESS_WHOLE:
+			targetTeacher = (List<WholeTeacher>) oneTypeTeacher;
+			for (WholeTeacher wt : (List<WholeTeacher>) targetTeacher) {
+				myDatas.add(wt.wholePro);
+			}
+			convert = pgi2whole;
+			break;
+		case ConstantVal.PROCESS_EVEN:
+			targetTeacher = (List<HalfTeacher>) oneTypeTeacher;
+			for (HalfTeacher wt : (List<HalfTeacher>) targetTeacher) {
+				myDatas.add(wt.evenUtil);
+			}
+			convert = pgi2half;
+			break;
+		case ConstantVal.PROCESS_ODD:
+			targetTeacher = (List<HalfTeacher>) oneTypeTeacher;
+			for (HalfTeacher wt : (List<HalfTeacher>) targetTeacher) {
+				myDatas.add(wt.oddUtil);
+			}
+			convert = pgi2half;
+			break;
+		default:
+			throw new Myexception(String.format("updateDataBySheet更新时异常，不支持处理%s类型", type));
+		}
+
+		for (ProcessUtil ad : myDatas) {
 			ad.weekY.clear();
 			ad.connectCells.clear();
 			ad.conflictCells.clear();
@@ -366,27 +605,30 @@ public class SA {
 				if (everyWeek[j] == false) {
 					int count = 1;
 					int current = sheetInfor[i][j];
+					if (current == -1)
+						continue;
 					Position temp = new Position(i, j);
-					datas.get(current).connectCells.add(temp);
+					ProcessUtil focus = myDatas.get(convert.get(current));
+					focus.connectCells.add(temp);
 					while (count + j < lessonNum * 7) {
 						if (current == sheetInfor[i][count + j]) {
-							datas.get(current).connectCells.add(new Position(i, count + j));
+							focus.connectCells.add(new Position(i, count + j));
 							count++;
 						} else {
 							if (count == 1) {
-								datas.get(current).connectCells.remove(temp);
+								focus.connectCells.remove(temp);
 							}
 							break;
 						}
 					}
 					if (count + j == lessonNum * 7 && count == 1) {
-						datas.get(current).connectCells.remove(temp);
+						focus.connectCells.remove(temp);
 					}
 					for (int k = 0; k < count; k++) {
-						if (!datas.get(current).weekY.contains(j + k)) {
-							datas.get(current).weekY.add(j + k);
+						if (!focus.weekY.contains(j + k)) {
+							focus.weekY.add(j + k);
 						}
-						datas.get(current).arrangeCells.add(new Position(i, j + k));
+						focus.arrangeCells.add(new Position(i, j + k));
 					}
 					j += count;
 				} else {
@@ -410,85 +652,9 @@ public class SA {
 
 				}
 				for (int k : oneRow) {
-					datas.get(sheetInfor[k][j]).conflictCells.add(new Position(k, j));
+					myDatas.get(convert.get(sheetInfor[k][j])).conflictCells.add(new Position(k, j));
 				}
 			}
-
-			
-
-		}
-		printSheet(sheetInfor);
-	}
-	
-	public void updateDataBySheet() {
-		bestResult = new ResultType(classNum, lessonNum, everyWeek);
-		beginResult = new ResultType(classNum, lessonNum, everyWeek);
-		tempResult = new ResultType(classNum, lessonNum, everyWeek);
-		tempCostflu = new ArrayList<>();
-		bestCostflu = new ArrayList<>();
-		noConflict = false;
-
-		for (allData ad : datas) {
-			ad.weekY.clear();
-			ad.connectCells.clear();
-			ad.conflictCells.clear();
-			ad.arrangeCells.clear();
-		}
-
-		for (int i = 0; i < classNum; i++) {
-			for (int j = 0; j < lessonNum * 7;) {
-				if (everyWeek[j] == false) {
-					int count = 1;
-					int current = sheetInfor[i][j];
-					Position temp = new Position(i, j);
-					datas.get(current).connectCells.add(temp);
-					while (count + j < lessonNum * 7) {
-						if (current == sheetInfor[i][count + j]) {
-							datas.get(current).connectCells.add(new Position(i, count + j));
-							count++;
-						} else {
-							if (count == 1) {
-								datas.get(current).connectCells.remove(temp);
-							}
-							break;
-						}
-					}
-					if (count + j == lessonNum * 7 && count == 1) {
-						datas.get(current).connectCells.remove(temp);
-					}
-					for (int k = 0; k < count; k++) {
-						if (!datas.get(current).weekY.contains(j + k)) {
-							datas.get(current).weekY.add(j + k);
-						}
-						datas.get(current).arrangeCells.add(new Position(i, j + k));
-					}
-					j += count;
-				} else {
-					j++;
-				}
-
-			}
-		}
-
-		for (int j = 0; j < lessonNum * 7; j++) {
-			if (everyWeek[j] == false) {
-				List<Integer> sameTime = new ArrayList<>();
-				Set<Integer> oneRow = new HashSet<>();
-				for (int i = 0; i < classNum; i++) {
-					int index = sameTime.indexOf(sheetInfor[i][j]);
-					if (index != -1) {
-						oneRow.add(index);
-						oneRow.add(i);
-					}
-					sameTime.add(sheetInfor[i][j]);
-
-				}
-				for (int k : oneRow) {
-					datas.get(sheetInfor[k][j]).conflictCells.add(new Position(k, j));
-				}
-			}
-
-			
 
 		}
 		printSheet(sheetInfor);
@@ -497,38 +663,38 @@ public class SA {
 	public ResultType solve() throws Myexception {
 		// printSheet(sheetInfor);
 
-		copyGh(datas, sheetInfor, bestResult);
+		copyGh(wholeTeachers, sheetInfor, bestResult);
 		minCost = bestResult.getCost(definedCost);
 		tempCostflu.add(minCost);
 		tempCost = minCost;
 		mycost = minCost;
-		copyGh(datas, sheetInfor, beginResult);
+		copyGh(wholeTeachers, sheetInfor, beginResult);
 		int k = 0;// 降温次数
 		int n = 0;// 迭代步数
 		double t = t0;
 		double r = 0.0;
-		boolean connect=true;
+		boolean connect = true;
 		// boolean searchOnece = false;
 		while (k < T) {
 			n = 0;
 			while (n < N) {
 				copyGh(beginResult, tempResult);
-				int index = isNoneConflict(tempResult.datas);
+				int index = isWholeConflict(tempResult.datas);
 				if (index == -1) {
-					
+
 					int sumConnectNumber = 0;
-					searchConnection(tempResult);
-					ArrayList<allData> myDatas = tempResult.datas;
+					searchConnection(tempResult.sheetInfor, tempResult.datas, ConstantVal.PROCESS_WHOLE);
+					ArrayList<WholeTeacher> myDatas = tempResult.datas;
 					for (int i = 0; i < myDatas.size(); i++) {
-						sumConnectNumber += myDatas.get(i).connectCells.size();
+						sumConnectNumber += myDatas.get(i).wholePro.connectCells.size();
 
 					}
-					if (sumConnectNumber == 0||!connect) {
+					if (sumConnectNumber == 0 || !connect) {
 						randomChange(beginResult, tempResult);
 					} else {
 						try {
 							// System.out.println("no conflict");
-							connect=dealConnect(beginResult, tempResult, sumConnectNumber);
+							connect = dealConnect(beginResult, tempResult, sumConnectNumber);
 						} catch (Myexception e) {
 							// TODO Auto-generated catch block
 							randomChange(beginResult, tempResult);// 无法找出
@@ -580,8 +746,8 @@ public class SA {
 		// System.out.print(tempCostflu.get(i)+"=>");
 		// }
 		// System.out.println();
-		SimpleDateFormat s = new SimpleDateFormat("YYYYMMdd-HHmmss");
-		String date = s.format(new Date());
+		// SimpleDateFormat s = new SimpleDateFormat("YYYYMMdd-HHmmss");
+		// String date = s.format(new Date());
 		// new Thread(new WriteData(tempCostflu,
 		// "C:\\SALog\\改进的sa\\tempcost-"+date+".txt")).start();
 		// new Thread(new WriteData(bestCostflu,
@@ -594,40 +760,40 @@ public class SA {
 		if (bestCostflu.size() == 0) {
 			logger.info("无解\r\n");
 		} else {
-			logger.info(
-					"best cost information:" + bestCostflu.size() + "    " + bestCostflu.get(bestCostflu.size() - 1)+"\r\n");
+			logger.info("best cost information:" + bestCostflu.size() + "    " + bestCostflu.get(bestCostflu.size() - 1)
+					+ "\r\n");
 			for (int i = 0; i < bestCostflu.size(); i++) {
 				logger.info(bestCostflu.get(i) + "=>");
 			}
 		}
 		if (noConflict == true) {
-			int sum=0;
-			updateDataBySheet(bestResult.sheetInfor);
-			for(int p=0;p<this.datas.size();p++){
-				if(this.datas.get(p).conflictCells.size()!=0){
-					sum+=this.datas.get(p).conflictCells.size();
+			int sum = 0;
+			updateDataBySheet(bestResult.sheetInfor, bestResult.datas, ConstantVal.PROCESS_WHOLE);
+			for (int p = 0; p < this.wholeTeachers.size(); p++) {
+				if (this.wholeTeachers.get(p).wholePro.conflictCells.size() != 0) {
+					sum += this.wholeTeachers.get(p).wholePro.conflictCells.size();
 				}
 			}
-			logger.info("最后冲突: "+sum+"\n");
-			sum=0;
-			for(int p=0;p<this.datas.size();p++){
-				if(this.datas.get(p).connectCells.size()!=0){
-					sum+=this.datas.get(p).connectCells.size();
+			logger.info("最后冲突: " + sum + "\n");
+			sum = 0;
+			for (int p = 0; p < this.wholeTeachers.size(); p++) {
+				if (this.wholeTeachers.get(p).wholePro.connectCells.size() != 0) {
+					sum += this.wholeTeachers.get(p).wholePro.connectCells.size();
 				}
 			}
-			logger.info("最后连堂: "+sum+"\n");
+			logger.info("最后连堂: " + sum + "\n");
 			return bestResult;
 		} else
 			return null;
 		// System.out.println("final cost= "+bestResult.getCost(definedCost));
 		// printConflict(tempResult.datas);
-		
+
 	}
 
 	public boolean checkResult(ResultType result) {
 		logger.info("cheack result\n");
 		int sheet[][] = result.sheetInfor;
-		ArrayList<allData> mydatdas = result.datas;
+		ArrayList<WholeTeacher> mydatdas = result.datas;
 		ArrayList<Integer> teachIndex = new ArrayList<>();
 		ArrayList<Integer> tNums = new ArrayList<>();
 		int row = sheet.length;
@@ -657,10 +823,19 @@ public class SA {
 
 	}
 
-	public int isNoneConflict(ArrayList<allData> result) {
+	public boolean isHalfConflict(){
+		for(HalfTeacher teacher:halfTeachers){
+			if(teacher.oddUtil.conflictCells.size()!=0||teacher.evenUtil.conflictCells.size()!=0){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public int isWholeConflict(ArrayList<WholeTeacher> result) {
 
 		for (int i = 0; i < result.size(); i++) {
-			if (result.get(i).conflictCells.size() != 0)
+			if (result.get(i).wholePro.conflictCells.size() != 0)
 				return i;
 		}
 
@@ -668,7 +843,7 @@ public class SA {
 
 	}
 
-	public void copyGh(List<allData> temp, int[][] sheetInfor, ResultType result) {
+	public void copyGh(List<WholeTeacher> temp, int[][] sheetInfor, ResultType result) {
 		result.datas = new ArrayList<>(temp);
 		result.sheetInfor = new int[sheetInfor.length][sheetInfor[0].length];
 		for (int i = 0; i < sheetInfor.length; i++) {
@@ -689,9 +864,9 @@ public class SA {
 	public void dealConflict(ResultType begin, ResultType result, int index) throws Myexception {
 
 		copyGh(begin, result);
-		ArrayList<allData> datas = result.datas;
-		allData tData = result.datas.get(index);
-		ArrayList<Position> tcon = tData.conflictCells;
+		ArrayList<WholeTeacher> datas = result.datas;
+		WholeTeacher tData = result.datas.get(index);
+		ArrayList<Position> tcon = tData.wholePro.conflictCells;
 		ArrayList<Integer> lessonCon = new ArrayList<>();
 		ArrayList<ArrayList<Integer>> classCon = new ArrayList<ArrayList<Integer>>();
 		ArrayList<Integer> oneclassCon = new ArrayList<>();
@@ -720,19 +895,19 @@ public class SA {
 			ArrayList<Position> exchangeY = new ArrayList<>();
 			ArrayList<Double> suitable = new ArrayList<>();
 			int onelessonCon = lessonCon.get(i);// 当前冲突的课时
-			List<Boolean>permission=new ArrayList<>();
+			List<Boolean> permission = new ArrayList<>();
 			for (int j = 0; j < oneclassCon.size(); j++) {
-				
+
 				ArrayList<Integer> allowedLesson = new ArrayList<>();
 				int c = oneclassCon.get(j);
 				// ArrayList<Integer> teachers = classIncludeTeacher.get(c);//
 				// 获得每个冲突班级的老师
-				if(fixTable[c][onelessonCon]==0){
+				if (fixTable[c][onelessonCon] == 0) {
 					for (int x = 0; x < needLessons; x++) {
 						if (everyWeek[x] == false) {
-							if (!tData.weekY.contains(x)) {
+							if (!tData.wholePro.weekY.contains(x)) {
 								if (fixTable[c][x] == 0) {
-									if (!datas.get(sheet[c][x]).weekY.contains(onelessonCon)) {
+									if (!datas.get(sheet[c][x]).wholePro.weekY.contains(onelessonCon)) {
 										allowedLesson.add(x);
 									}
 								}
@@ -741,11 +916,8 @@ public class SA {
 						}
 
 					}
-					
+
 				}
-				
-				
-			
 
 				if (allowedLesson.size() != 0) {
 					permission.add(true);
@@ -753,12 +925,12 @@ public class SA {
 					double repet = 600.0;
 
 					for (int y : allowedLesson) {
-						if (datas.get(sheet[c][y]).courseIndex == 3 && onelessonCon % lessonNum != lessonNum-1) {
+						if (datas.get(sheet[c][y]).courseIndex == 3 && onelessonCon % lessonNum != lessonNum - 1) {
 							allowedCost.add(1.0 / 99999);
 							continue;
 						}
 						double tempNum = 1.0;
-						
+
 						try {
 							if (sheet[c][y] == sheet[c][onelessonCon - 1]) {
 								tempNum += repet;
@@ -787,7 +959,7 @@ public class SA {
 						} catch (Exception e) {
 							// TODO: handle exception
 						}
-						
+
 						allowedCost.add(1.0 / tempNum);
 					}
 					double sumSuit = 0;
@@ -807,41 +979,38 @@ public class SA {
 					exchangeY.add(new Position(c, allowedLesson.get(site)));
 					suitable.add(allowedCost.get(site));
 
-				} else{
+				} else {
 					permission.add(false);
-					exchangeY.add(new Position(-1,-1));
+					exchangeY.add(new Position(-1, -1));
 					suitable.add(-1.0);
 				}
 			}
-			int can=0;
-			for(boolean f:permission){
-				if(f){
+			int can = 0;
+			for (boolean f : permission) {
+				if (f) {
 					can++;
 				}
 			}
-			
-			int myIndex = 0;//最小的适应值，要保留不换的。
-			
-			int state=oneclassCon.size()-can;
-			if(state==0){
+
+			int myIndex = 0;// 最小的适应值，要保留不换的。
+
+			int state = oneclassCon.size() - can;
+			if (state == 0) {
 				for (int x = 1; x < suitable.size(); x++) {
 					if (suitable.get(x) < suitable.get(myIndex)) {
 						myIndex = x;
 					}
 				}
-			}else if(state==1){
-				for(int x=0;x<permission.size();x++){
-					if(!permission.get(x)){
-						myIndex=x;
+			} else if (state == 1) {
+				for (int x = 0; x < permission.size(); x++) {
+					if (!permission.get(x)) {
+						myIndex = x;
 						break;
 					}
 				}
-			}else {
+			} else {
 				throw new Myexception("无解");
 			}
-			
-
-			
 
 			for (int x = 0; x < exchangeY.size(); x++) {
 				if (x == myIndex) {
@@ -873,48 +1042,48 @@ public class SA {
 					logger.info("冲突交换：" + "(" + cl.classX + "," + cl.timeY + ")" + "<==>" + "(" + cl.classX + ","
 							+ onelessonCon + ")\n");
 					Position p1 = new Position(cl.classX, onelessonCon), p2 = new Position(cl.classX, cl.timeY);
-					allData a1 = result.datas.get(t1), a2 = result.datas.get(t2);
-					for (Position tp : a1.arrangeCells) {
+					WholeTeacher a1 = result.datas.get(t1), a2 = result.datas.get(t2);
+					for (Position tp : a1.wholePro.arrangeCells) {
 						if (tp.classX == p1.classX && tp.timeY == p1.timeY) {
-							a1.arrangeCells.remove(tp);
+							a1.wholePro.arrangeCells.remove(tp);
 							break;
 						}
 					}
-					a1.arrangeCells.add(p2);
-					for (Position tp : a2.arrangeCells) {
+					a1.wholePro.arrangeCells.add(p2);
+					for (Position tp : a2.wholePro.arrangeCells) {
 						if (tp.classX == p2.classX && tp.timeY == p2.timeY) {
-							a2.arrangeCells.remove(tp);
+							a2.wholePro.arrangeCells.remove(tp);
 							break;
 						}
 					}
-					a2.arrangeCells.add(p1);
-					if (!a1.weekY.contains(cl.timeY)) {
-						a1.weekY.add(cl.timeY);
+					a2.wholePro.arrangeCells.add(p1);
+					if (!a1.wholePro.weekY.contains(cl.timeY)) {
+						a1.wholePro.weekY.add(cl.timeY);
 					}
-					if (!a2.weekY.contains(onelessonCon)) {
-						a2.weekY.add(onelessonCon);
+					if (!a2.wholePro.weekY.contains(onelessonCon)) {
+						a2.wholePro.weekY.add(onelessonCon);
 					}
 
 					int count = 0;
-					for (Position tp : a2.conflictCells) {
+					for (Position tp : a2.wholePro.conflictCells) {
 						if (tp.timeY == cl.timeY) {
 							count++;
 						}
 					}
 
-					if (count == 2 && a2.conflictCells.size() == 2) {
-						a2.conflictCells.clear();
-					} else if (count == 2 && a2.conflictCells.size() != 2) {
-						for (Position tp : a2.conflictCells) {
+					if (count == 2 && a2.wholePro.conflictCells.size() == 2) {
+						a2.wholePro.conflictCells.clear();
+					} else if (count == 2 && a2.wholePro.conflictCells.size() != 2) {
+						for (Position tp : a2.wholePro.conflictCells) {
 							if (tp.timeY == onelessonCon) {
-								a2.conflictCells.remove(tp);
+								a2.wholePro.conflictCells.remove(tp);
 
 							}
 						}
 					} else if (count > 2) {
-						for (Position tp : a2.conflictCells) {
+						for (Position tp : a2.wholePro.conflictCells) {
 							if (tp.classX == cl.classX && tp.timeY == onelessonCon) {
-								a2.conflictCells.remove(tp);
+								a2.wholePro.conflictCells.remove(tp);
 								break;
 							}
 						}
@@ -923,14 +1092,14 @@ public class SA {
 					sheet[cl.classX][onelessonCon] = t2;
 					sheet[cl.classX][cl.timeY] = t1;
 
-					int sum=0;
-					updateDataBySheet(sheet);
-					for(int p=0;p<this.datas.size();p++){
-						if(this.datas.get(p).conflictCells.size()!=0){
-							sum+=this.datas.get(p).conflictCells.size();
+					int sum = 0;
+					updateDataBySheet(sheet, wholeTeachers, ConstantVal.PROCESS_WHOLE);
+					for (int p = 0; p < this.wholeTeachers.size(); p++) {
+						if (this.wholeTeachers.get(p).wholePro.conflictCells.size() != 0) {
+							sum += this.wholeTeachers.get(p).wholePro.conflictCells.size();
 						}
 					}
-					logger.info("conflict: "+sum+"\n");
+					logger.info("conflict: " + sum + "\n");
 				}
 			}
 
@@ -941,22 +1110,22 @@ public class SA {
 	public boolean dealConnect(ResultType begin, ResultType result, int sumConnectNumber) throws Myexception {
 
 		copyGh(begin, result);
-//		searchConnection(result);
-		ArrayList<allData> myDatas = result.datas;
+		// searchConnection(result);
+		ArrayList<WholeTeacher> myDatas = result.datas;
 		int sheet[][] = result.sheetInfor;
 
-		//System.out.println("connection nunm=" + sumConnectNumber);
+		// System.out.println("connection nunm=" + sumConnectNumber);
 		int rdint = random.nextInt(sumConnectNumber);
 		int tindex = 0;
 		int tselct = 0;
 		for (; tindex < myDatas.size(); tindex++) {
-			tselct += myDatas.get(tindex).connectCells.size();
+			tselct += myDatas.get(tindex).wholePro.connectCells.size();
 			if (tselct > rdint) {
 				break;
 			}
 		}
-		allData tData = myDatas.get(tindex);
-		ArrayList<Position> tcon = tData.connectCells;
+		WholeTeacher tData = myDatas.get(tindex);
+		ArrayList<Position> tcon = tData.wholePro.connectCells;
 		int rdindexy = random.nextInt(tcon.size());
 		int classX = tcon.get(rdindexy).classX;
 		int timeY = tcon.get(rdindexy).timeY;
@@ -982,50 +1151,50 @@ public class SA {
 				break;
 			}
 		}
-		connectNum += count+1;
+		connectNum += count + 1;
 		int myCount = random.nextInt(connectNum);
 		Position focusPosition = tcon.get(beginCon + myCount);
-		for(int h=beginCon;h<beginCon+connectNum;){
-			if(fixTable[focusPosition.classX][focusPosition.timeY]==0){
+		for (int h = beginCon; h < beginCon + connectNum;) {
+			if (fixTable[focusPosition.classX][focusPosition.timeY] == 0) {
 				break;
-			}else{
-				
+			} else {
+
 				focusPosition = tcon.get(h);
 				h++;
 			}
 		}
 
-		if(fixTable[focusPosition.classX][focusPosition.timeY]==1){
-			boolean f=false;
-			for(int i=0;i<myDatas.size();i++){
-				if(f){
+		if (fixTable[focusPosition.classX][focusPosition.timeY] == 1) {
+			boolean f = false;
+			for (int i = 0; i < myDatas.size(); i++) {
+				if (f) {
 					break;
 				}
-				for(int j=0;j<myDatas.get(i).connectCells.size();j++){
-					Position temp=myDatas.get(i).connectCells.get(j);
-					if(fixTable[temp.classX][temp.timeY]==1){
+				for (int j = 0; j < myDatas.get(i).wholePro.connectCells.size(); j++) {
+					Position temp = myDatas.get(i).wholePro.connectCells.get(j);
+					if (fixTable[temp.classX][temp.timeY] == 1) {
 						continue;
-					}else{
-						f=true;
-						focusPosition=temp;
+					} else {
+						f = true;
+						focusPosition = temp;
 						break;
-					
+
 					}
 				}
 			}
 		}
-		if(fixTable[focusPosition.classX][focusPosition.timeY]==1){
+		if (fixTable[focusPosition.classX][focusPosition.timeY] == 1) {
 			return false;
 		}
 		int c = focusPosition.classX;
-		timeY=focusPosition.timeY;
+		timeY = focusPosition.timeY;
 		ArrayList<Integer> allowed = new ArrayList<>();
 
 		for (int i = 0; i < needLessons; i++) {
 			if (everyWeek[i] == false) {
-				if (!tData.weekY.contains(i)) {
+				if (!tData.wholePro.weekY.contains(i)) {
 					if (fixTable[c][i] == 0) {
-						if (!myDatas.get(sheet[c][i]).weekY.contains(timeY)) {
+						if (!myDatas.get(sheet[c][i]).wholePro.weekY.contains(timeY)) {
 							allowed.add(i);
 						}
 					}
@@ -1040,12 +1209,11 @@ public class SA {
 			double repet = 99999.0;
 
 			for (int y : allowed) {
-				if (datas.get(sheet[c][y]).courseIndex == 3 && timeY % lessonNum != lessonNum-1) {
+				if (datas.get(sheet[c][y]).courseIndex == 3 && timeY % lessonNum != lessonNum - 1) {
 					allowedCost.add(1.0 / 999999);
 					continue;
 				}
 				double tempNum = 1.0;
-				
 
 				try {
 					if (sheet[c][y] == sheet[c][timeY - 1]) {
@@ -1075,8 +1243,7 @@ public class SA {
 				} catch (Exception e) {
 					// TODO: handle exception
 				}
-				
-				
+
 				allowedCost.add(1.0 / tempNum);
 			}
 			int site = -1;
@@ -1130,35 +1297,35 @@ public class SA {
 				// }
 
 				int t1 = sheet[cl.classX][timeY], t2 = sheet[cl.classX][cl.timeY];
-				logger.info("连堂交换：" + "(" + cl.classX + "," + cl.timeY + ")" + "<==>" + "(" + cl.classX + ","
-						+ timeY + ")\n");
+				logger.info("连堂交换：" + "(" + cl.classX + "," + cl.timeY + ")" + "<==>" + "(" + cl.classX + "," + timeY
+						+ ")\n");
 				Position p1 = new Position(cl.classX, timeY), p2 = new Position(cl.classX, cl.timeY);
-				allData a1 = result.datas.get(t1), a2 = result.datas.get(t2);
-				for (Position tp : a1.arrangeCells) {
+				WholeTeacher a1 = result.datas.get(t1), a2 = result.datas.get(t2);
+				for (Position tp : a1.wholePro.arrangeCells) {
 					if (tp.classX == p1.classX && tp.timeY == p1.timeY) {
-						a1.arrangeCells.remove(tp);
+						a1.wholePro.arrangeCells.remove(tp);
 						break;
 					}
 				}
-				a1.arrangeCells.add(p2);
-				for (Position tp : a2.arrangeCells) {
+				a1.wholePro.arrangeCells.add(p2);
+				for (Position tp : a2.wholePro.arrangeCells) {
 					if (tp.classX == p2.classX && tp.timeY == p2.timeY) {
-						a2.arrangeCells.remove(tp);
+						a2.wholePro.arrangeCells.remove(tp);
 						break;
 					}
 				}
-				a2.arrangeCells.add(p1);
+				a2.wholePro.arrangeCells.add(p1);
 
 				Integer y1 = timeY;
 				Integer y2 = cl.timeY;
-				if (!a1.weekY.contains(cl.timeY)) {
-					a1.weekY.add(cl.timeY);
+				if (!a1.wholePro.weekY.contains(cl.timeY)) {
+					a1.wholePro.weekY.add(cl.timeY);
 				}
-				a1.weekY.remove(y1);
-				if (!a2.weekY.contains(timeY)) {
-					a2.weekY.add(timeY);
+				a1.wholePro.weekY.remove(y1);
+				if (!a2.wholePro.weekY.contains(timeY)) {
+					a2.wholePro.weekY.add(timeY);
 				}
-				a2.weekY.remove(y2);
+				a2.wholePro.weekY.remove(y2);
 				// myindex = 0;
 				// for (Position tp : a2.connectLessons) {
 				// if (tp.timeY == cl.timeY) {
@@ -1182,27 +1349,26 @@ public class SA {
 				sheet[cl.classX][timeY] = t2;
 				sheet[cl.classX][cl.timeY] = t1;
 
-
-				int sum=0;
-				updateDataBySheet(sheet);
-				for(int p=0;p<this.datas.size();p++){
-					if(this.datas.get(p).conflictCells.size()!=0){
-						sum+=this.datas.get(p).conflictCells.size();
+				int sum = 0;
+				updateDataBySheet(sheet, wholeTeachers, ConstantVal.PROCESS_WHOLE);
+				for (int p = 0; p < this.wholeTeachers.size(); p++) {
+					if (this.wholeTeachers.get(p).wholePro.conflictCells.size() != 0) {
+						sum += this.wholeTeachers.get(p).wholePro.conflictCells.size();
 					}
 				}
-				logger.info("conflict: "+sum+"\n");
-				sum=0;
-				for(int p=0;p<this.datas.size();p++){
-					if(this.datas.get(p).connectCells.size()!=0){
-						sum+=this.datas.get(p).connectCells.size();
+				logger.info("conflict: " + sum + "\n");
+				sum = 0;
+				for (int p = 0; p < this.wholeTeachers.size(); p++) {
+					if (this.wholeTeachers.get(p).wholePro.connectCells.size() != 0) {
+						sum += this.wholeTeachers.get(p).wholePro.connectCells.size();
 					}
 				}
-				logger.info("connect: "+sum+"\n");
+				logger.info("connect: " + sum + "\n");
 			}
 
 		} else {
 			// throw new Myexception("connection error");
-			fixTable[focusPosition.classX][focusPosition.timeY]=1;
+			fixTable[focusPosition.classX][focusPosition.timeY] = 1;
 		}
 		return true;
 
@@ -1234,7 +1400,7 @@ public class SA {
 	}
 
 	public boolean checkVaild(ResultType result, int c1, int c2, int l1, int l2) {
-		ArrayList<allData> myDatas = result.datas;
+		ArrayList<WholeTeacher> myDatas = result.datas;
 		int sheet[][] = result.sheetInfor;
 		int t1 = sheet[c1][l1];
 		int t2 = sheet[c2][l2];
@@ -1250,10 +1416,10 @@ public class SA {
 			return false;
 		}
 
-		if (myDatas.get(t1).weekY.contains(l2)) {
+		if (myDatas.get(t1).wholePro.weekY.contains(l2)) {
 			return false;
 		}
-		if (myDatas.get(t2).weekY.contains(l1)) {
+		if (myDatas.get(t2).wholePro.weekY.contains(l1)) {
 			return false;
 		}
 
@@ -1307,11 +1473,11 @@ public class SA {
 		int c2 = c1;
 
 		int l1 = random.nextInt(needLessons);
-		while (everyWeek[l1]||fixTable[c1][l1]==1) {
+		while (everyWeek[l1] || fixTable[c1][l1] == 1) {
 			l1 = random.nextInt(needLessons);
 		}
 		int l2 = random.nextInt(needLessons);
-		while (everyWeek[l2]||fixTable[c2][l2]==1) {
+		while (everyWeek[l2] || fixTable[c2][l2] == 1) {
 			l2 = random.nextInt(needLessons);
 		}
 
@@ -1338,28 +1504,28 @@ public class SA {
 			int t1 = sheet[c1][l1];
 			int t2 = sheet[c2][l2];
 
-			logger.info("随机交换：" + "(" + c1 + "," + l1 + ")" + "<==>" + "(" + c2 + "," + l2 + ")"+"\r\n");
-			allData a1 = result.datas.get(t1), a2 = result.datas.get(t2);
-			for (Position tp : a1.arrangeCells) {
+			logger.info("随机交换：" + "(" + c1 + "," + l1 + ")" + "<==>" + "(" + c2 + "," + l2 + ")" + "\r\n");
+			WholeTeacher a1 = result.datas.get(t1), a2 = result.datas.get(t2);
+			for (Position tp : a1.wholePro.arrangeCells) {
 				if (tp.classX == c1 && tp.timeY == l1) {
-					a1.arrangeCells.remove(tp);
+					a1.wholePro.arrangeCells.remove(tp);
 					break;
 				}
 			}
-			a1.arrangeCells.add(new Position(c2, l2));
-			for (Position tp : a2.arrangeCells) {
+			a1.wholePro.arrangeCells.add(new Position(c2, l2));
+			for (Position tp : a2.wholePro.arrangeCells) {
 				if (tp.classX == c2 && tp.timeY == l2) {
-					a2.arrangeCells.remove(tp);
+					a2.wholePro.arrangeCells.remove(tp);
 					break;
 				}
 			}
-			a2.arrangeCells.add(new Position(c1, l1));
+			a2.wholePro.arrangeCells.add(new Position(c1, l1));
 			Integer y1 = l1;
 			Integer y2 = l2;
-			a1.weekY.remove(y1);
-			a1.weekY.add(y2);
-			a2.weekY.remove(y2);
-			a2.weekY.add(y1);
+			a1.wholePro.weekY.remove(y1);
+			a1.wholePro.weekY.add(y2);
+			a2.wholePro.weekY.remove(y2);
+			a2.wholePro.weekY.add(y1);
 
 			sheet[c1][l1] = t2;
 			sheet[c2][l2] = t1;

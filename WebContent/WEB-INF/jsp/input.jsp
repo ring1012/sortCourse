@@ -185,7 +185,7 @@ $(function() {
 					name="saturday" class="saturday" min='0' value="0">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 				周日一共几节课:<input type="number" name="sunday" class="sunday" min='0'
 					value="0">
-
+				空白课可以放在上午最后一节<input type="checkbox" name="allowMorning" />
 
 				<h3 class="text-center">教师信息</h3>
 

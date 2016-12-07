@@ -9,8 +9,8 @@ import com.huan.definition.ConstantVal;
 import com.huan.definition.Position;
 import com.huan.definition.ResultType;
 import com.huan.exception.Myexception;
-import com.huan.model.allData;
-
+import com.huan.model.HalfTeacher;
+import com.huan.model.Teacher;
 
 public class startSortCourse {
 	// 老师0~49 班级1~15 课时1~49
@@ -26,16 +26,17 @@ public class startSortCourse {
 	public int saturday;
 	public int sunday;
 
-	public int lessonNum ;
-	
-	public List<allData> datas ;
-	public int teacherNum;
-	public int needLessons ;
+	public int lessonNum;
 
-	public boolean[]everyWeek;
-	public SA sa=null;
-	public startSortCourse(int classNum, int morning, int afternoon, int saturday, int sunday,
-			List<allData> datas) {
+	public List<Teacher> datas;
+	public int teacherNum;
+	public int needLessons;
+	public boolean allowMorning;
+	public boolean[] everyWeek;
+	public SA sa = null;
+
+	public startSortCourse(int classNum, int morning, int afternoon, int saturday, int sunday, List<Teacher> datas,
+			boolean allowMorning) {
 		super();
 		this.classNum = classNum;
 		this.morning = morning;
@@ -43,66 +44,67 @@ public class startSortCourse {
 		this.saturday = saturday;
 		this.sunday = sunday;
 		this.datas = datas;
-		this.lessonNum=morning+afternoon;
-		this.teacherNum=datas.size();
-		this.needLessons=7*lessonNum;
-		
-		everyWeek=new boolean[7*lessonNum];
-		for(int i=0;i<5*lessonNum+saturday;i++){
-			everyWeek[i]=false;
+		this.lessonNum = morning + afternoon;
+		this.teacherNum = datas.size();
+		this.needLessons = 7 * lessonNum;
+		this.allowMorning = allowMorning;
+		everyWeek = new boolean[7 * lessonNum];
+		for (int i = 0; i < 5 * lessonNum + saturday; i++) {
+			everyWeek[i] = false;
 		}
-		for(int i=5*lessonNum+saturday;i<6*lessonNum;i++){
-			everyWeek[i]=true;
+		for (int i = 5 * lessonNum + saturday; i < 6 * lessonNum; i++) {
+			everyWeek[i] = true;
 		}
-		for(int i=6*lessonNum;i<6*lessonNum+sunday;i++){
-			everyWeek[i]=false;
+		for (int i = 6 * lessonNum; i < 6 * lessonNum + sunday; i++) {
+			everyWeek[i] = false;
 		}
-		for(int i=6*lessonNum+sunday;i<7*lessonNum;i++){
-			everyWeek[i]=true;
+		for (int i = 6 * lessonNum + sunday; i < 7 * lessonNum; i++) {
+			everyWeek[i] = true;
 		}
-		
-//		for (int i = 0; i < classNum; i++) {
-//			for (int j = 0; j < lessonNum * daysPerWeek; j++) {
-//				Position tempPosition = new Position();
-//				tempPosition.classX = i + 1;
-//				tempPosition.timeY = j + 1;
-//				globalPositions.add(tempPosition);
-//
-//			}
-//
-//		}
+
+		// for (int i = 0; i < classNum; i++) {
+		// for (int j = 0; j < lessonNum * daysPerWeek; j++) {
+		// Position tempPosition = new Position();
+		// tempPosition.classX = i + 1;
+		// tempPosition.timeY = j + 1;
+		// globalPositions.add(tempPosition);
+		//
+		// }
+		//
+		// }
 	}
 
 	// ====== allocate course-position information ======
-//	public ArrayList<Position> globalPositions = new ArrayList<Position>(classNum * lessonNum * daysPerWeek);
+	// public ArrayList<Position> globalPositions = new
+	// ArrayList<Position>(classNum * lessonNum * daysPerWeek);
 
 	public startSortCourse() {
 		teacherNum = datas.size();
 
-//		for (int i = 0; i < classNum; i++) {
-//			for (int j = 0; j < lessonNum * daysPerWeek; j++) {
-//				Position tempPosition = new Position();
-//				tempPosition.classX = i + 1;
-//				tempPosition.timeY = j + 1;
-//				globalPositions.add(tempPosition);
-//
-//			}
-//
-//		}
+		// for (int i = 0; i < classNum; i++) {
+		// for (int j = 0; j < lessonNum * daysPerWeek; j++) {
+		// Position tempPosition = new Position();
+		// tempPosition.classX = i + 1;
+		// tempPosition.timeY = j + 1;
+		// globalPositions.add(tempPosition);
+		//
+		// }
+		//
+		// }
 
 		// initBlank();
 	}
 
 	public void initBlank() {
 		// 周六下午、周日不上课！
-//		int freeDay = (6 - 1) * 49 + 4;
-//		System.out.println(globalPositions.size());
-//		for (int i = freeDay; i < classNum * lessonNum * daysPerWeek; i++) {
-//			globalPositions.get(i).need = false;
-//			globalPositions.get(i).filled = true;
-//		}
-		
-//		int freeDay=5*
+		// int freeDay = (6 - 1) * 49 + 4;
+		// System.out.println(globalPositions.size());
+		// for (int i = freeDay; i < classNum * lessonNum * daysPerWeek; i++) {
+		// globalPositions.get(i).need = false;
+		// globalPositions.get(i).filled = true;
+		// }
+
+		// int freeDay=5*
 
 		// for (int i = 0; i < teacherNum; i++) {
 		// for (int j = 0; j < daysPerWeek * lessonNum; j++) {
@@ -116,7 +118,7 @@ public class startSortCourse {
 		Integer c_arts[] = new Integer[lessonNum];
 		Integer c_science[] = new Integer[lessonNum];
 		Integer c_sport[] = new Integer[lessonNum];
-		Integer c_empty[]=new Integer[lessonNum];
+		Integer c_empty[] = new Integer[lessonNum];
 		Integer c_other[] = new Integer[lessonNum];
 
 		for (int i = 0; i < morning; i++) {
@@ -127,33 +129,34 @@ public class startSortCourse {
 			c_english[i] = morning - i;
 
 			c_sport[i] = 60;
-			
-			c_empty[i]=Integer.MAX_VALUE;
 
-			c_arts[i] = morning - i+2;
+			c_empty[i] = Integer.MAX_VALUE;
+
+			c_arts[i] = morning - i + 2;
 
 			c_science[i] = 1;
 
-			c_other[i] = morning - i+1;
+			c_other[i] = morning - i + 1;
 
 		} // morning
-		c_empty[morning-1]=1;
+		if (allowMorning)
+			c_empty[morning - 1] = 1;
 
 		for (int i = morning; i < afternoon / 2 + morning; i++) {
 
-			c_chinese[i] = i - morning+1;
+			c_chinese[i] = i - morning + 1;
 
-			c_math[i] = afternoon / 2 + morning+1 - i;
+			c_math[i] = afternoon / 2 + morning + 1 - i;
 
 			c_english[i] = i - 2;
 
 			c_sport[i] = 60;
-			
-			c_empty[i]=Integer.MAX_VALUE;
+
+			c_empty[i] = Integer.MAX_VALUE;
 
 			c_arts[i] = i - 1;
 
-			c_science[i] = afternoon / 2 + morning+1 - i;
+			c_science[i] = afternoon / 2 + morning + 1 - i;
 
 			c_other[i] = i;
 
@@ -161,27 +164,27 @@ public class startSortCourse {
 
 		for (int i = afternoon / 2 + morning; i < lessonNum; i++) {
 
-			c_chinese[i] = afternoon / 2 + morning+2 - i;
+			c_chinese[i] = afternoon / 2 + morning + 2 - i;
 
-			c_math[i] = i - (afternoon / 2 + morning-1);
+			c_math[i] = i - (afternoon / 2 + morning - 1);
 
-			c_english[i] = afternoon / 2 + morning+2 - i;
+			c_english[i] = afternoon / 2 + morning + 2 - i;
 			if (i == lessonNum - 1 || i == lessonNum - 2)
 				c_sport[i] = 1;
 			else {
 				c_sport[i] = 60;
 			}
-			
-			c_empty[i]=Integer.MAX_VALUE;
-			
-			c_arts[i] = afternoon / 2 + morning+2 - i;
 
-			c_science[i] = i - (afternoon / 2 + morning-1);
+			c_empty[i] = Integer.MAX_VALUE;
+
+			c_arts[i] = afternoon / 2 + morning + 2 - i;
+
+			c_science[i] = i - (afternoon / 2 + morning - 1);
 
 			c_other[i] = 1;
 
 		} // half of afternoon
-		c_empty[lessonNum-1]=1;
+		c_empty[lessonNum - 1] = 1;
 
 		definedCost.add(c_chinese);// 0
 		definedCost.add(c_math);// 1
@@ -191,14 +194,14 @@ public class startSortCourse {
 		definedCost.add(c_science);// 5
 		definedCost.add(c_empty);// 6
 		definedCost.add(c_other);// 7
-//		System.out.println("===========cost===");
-//		for (int i = 0; i < 7; i++) {
-//
-//			for (int j = 0; j < definedCost.get(i).length; j++) {
-//				System.out.print(definedCost.get(i)[j] + " ");
-//			}
-//			System.out.println();
-//		}
+		// System.out.println("===========cost===");
+		// for (int i = 0; i < 7; i++) {
+		//
+		// for (int j = 0; j < definedCost.get(i).length; j++) {
+		// System.out.print(definedCost.get(i)[j] + " ");
+		// }
+		// System.out.println();
+		// }
 
 	}
 
@@ -326,7 +329,7 @@ public class startSortCourse {
 		int t = 0;
 		for (int i = 0; i < teacherNum; i++) {
 			if (datas.get(i).courseIndex == ConstantVal.COURSE_EMPTY && t != i) {
-				allData temp = datas.get(i);
+				Teacher temp = datas.get(i);
 				datas.set(i, datas.get(t));
 				datas.set(t, temp);
 				t++;
@@ -334,7 +337,7 @@ public class startSortCourse {
 		}
 		for (int i = t; i < teacherNum; i++) {
 			if (datas.get(i).courseIndex == ConstantVal.COURSE_SPORT && t != i) {
-				allData temp = datas.get(i);
+				Teacher temp = datas.get(i);
 				datas.set(i, datas.get(t));
 				datas.set(t, temp);
 				t++;
@@ -345,7 +348,7 @@ public class startSortCourse {
 			for (int j = i + 1; j < teacherNum; j++) {
 				if (datas.get(i).perWeekClassNum * datas.get(i).perWeekTimeNum < datas.get(j).perWeekClassNum
 						* datas.get(j).perWeekTimeNum) {
-					allData temp = datas.get(i);
+					Teacher temp = datas.get(i);
 					datas.set(i, datas.get(j));
 					datas.set(j, temp);
 				}
@@ -371,13 +374,13 @@ public class startSortCourse {
 			temp.clear();
 		}
 
-		//System.out.println("========classinfor======");
-//		for (int i = 0; i < classIncludeTeacher.size(); i++) {
-//			for (int m = 0; m < classIncludeTeacher.get(i).size(); m++) {
-//				System.out.print(classIncludeTeacher.get(i).get(m) + " ");
-//			}
-//			System.out.println();
-//		}
+		// System.out.println("========classinfor======");
+		// for (int i = 0; i < classIncludeTeacher.size(); i++) {
+		// for (int m = 0; m < classIncludeTeacher.get(i).size(); m++) {
+		// System.out.print(classIncludeTeacher.get(i).get(m) + " ");
+		// }
+		// System.out.println();
+		// }
 
 	}
 
@@ -394,53 +397,54 @@ public class startSortCourse {
 		everyClassIncludeTeacher();
 		initBlank();
 
-		sa = new SA( 20, 20, 25.0, 0.8, datas, definedCost, classIncludeTeacher,needLessons,lessonNum,classNum,everyWeek);
-		sa.initGroup();
+		sa = new SA(20, 20, 25.0, 0.8, datas, definedCost, classIncludeTeacher, needLessons, lessonNum, classNum,
+				everyWeek);
+		sa.arrangeHalf();
+		sa.initWhole();
 		// printConflict(sa.datas);
 		return sa.solve();
 
 	}
 	// </excute>
 
-	public ResultType changeAndDeal() throws Myexception{
+	public ResultType changeAndDeal() throws Myexception {
 		return sa.solve();
 	}
-	
-	
-	public void printConflict(ArrayList<allData> datas) {
-		for (int i = 0; i < teacherNum; i++) {
-			System.out.print("name:" + datas.get(i).teacherName);
-			System.out.print(" course:" + datas.get(i).courseName);
-			System.out.print(" totalLessonsL:" + datas.get(i).perWeekClassNum * datas.get(i).perWeekTimeNum);
-			System.out.println();
-			System.out.println("normal");
-			for (int k = 0; k < datas.get(i).arrangeCells.size(); k++) {
-				Position tPosition = datas.get(i).arrangeCells.get(k);
-				System.out.print("(" + tPosition.classX + "," + tPosition.timeY + ")");
-			}
-			System.out.println();
-			System.out.print("conflict: ");
-			for (int k = 0; k < datas.get(i).conflictCells.size(); k++) {
-				Position tPosition = datas.get(i).conflictCells.get(k);
-				System.out.print("(" + tPosition.classX + "," + tPosition.timeY + ")");
-			}
-			System.out.println();
-			System.out.print("connect: ");
-			for (int k = 0; k < datas.get(i).connectCells.size(); k++) {
-				Position tPosition = datas.get(i).connectCells.get(k);
-				System.out.print("(" + tPosition.classX + "," + tPosition.timeY + ")");
-			}
-			System.out.println();
-			int ttttt = datas.get(i).arrangeCells.size() + datas.get(i).conflictCells.size();
-			if (ttttt == datas.get(i).perWeekClassNum * datas.get(i).perWeekTimeNum)
-				System.out.println("this teacher arrange" + ttttt + "lessons");
-			else {
-				System.out.println("this teacher arrange" + ttttt + "lessons");
-			}
-			System.out.println();
-		}
 
-	}
+//	public void printConflict(ArrayList<WholeTeacher> datas) {
+//		for (int i = 0; i < teacherNum; i++) {
+//			System.out.print("name:" + datas.get(i).teacherName);
+//			System.out.print(" course:" + datas.get(i).courseName);
+//			System.out.print(" totalLessonsL:" + datas.get(i).perWeekClassNum * datas.get(i).perWeekTimeNum);
+//			System.out.println();
+//			System.out.println("normal");
+//			for (int k = 0; k < datas.get(i).arrangeCells.size(); k++) {
+//				Position tPosition = datas.get(i).arrangeCells.get(k);
+//				System.out.print("(" + tPosition.classX + "," + tPosition.timeY + ")");
+//			}
+//			System.out.println();
+//			System.out.print("conflict: ");
+//			for (int k = 0; k < datas.get(i).conflictCells.size(); k++) {
+//				Position tPosition = datas.get(i).conflictCells.get(k);
+//				System.out.print("(" + tPosition.classX + "," + tPosition.timeY + ")");
+//			}
+//			System.out.println();
+//			System.out.print("connect: ");
+//			for (int k = 0; k < datas.get(i).connectCells.size(); k++) {
+//				Position tPosition = datas.get(i).connectCells.get(k);
+//				System.out.print("(" + tPosition.classX + "," + tPosition.timeY + ")");
+//			}
+//			System.out.println();
+//			int ttttt = datas.get(i).arrangeCells.size() + datas.get(i).conflictCells.size();
+//			if (ttttt == datas.get(i).perWeekClassNum * datas.get(i).perWeekTimeNum)
+//				System.out.println("this teacher arrange" + ttttt + "lessons");
+//			else {
+//				System.out.println("this teacher arrange" + ttttt + "lessons");
+//			}
+//			System.out.println();
+//		}
+//
+//	}
 
 	public int searchCharacter(String courseName) {
 		if (courseName.equals("语文"))
@@ -455,23 +459,11 @@ public class startSortCourse {
 			return ConstantVal.COURSE_ARTS;
 		else if (courseName.equals("物理") || courseName.equals("化学") || courseName.equals("生物"))
 			return ConstantVal.COURSE_SCIENCE;
-		else if(courseName.equals(""))
+		else if (courseName.equals(""))
 			return ConstantVal.COURSE_EMPTY;
-		else 
+		else
 			return ConstantVal.COURSE_OTHER;
 
-	}
-
-	public int getYPosition(int teacherindex) {
-		int courseIndex = searchCharacter(datas.get(teacherindex).courseName);
-		Integer[] destCost = definedCost.get(courseIndex);
-		int sumDayCost = 0;
-		for (int i = 0; i < destCost.length; i++) {
-			sumDayCost += destCost[i];
-		}
-		sumDayCost *= daysPerWeek;
-
-		return 1;
 	}
 
 	public int position2Index(int x, int y) {
@@ -485,29 +477,32 @@ public class startSortCourse {
 		return new Position(x, y);
 
 	}
-	
-	public void paramCheck() throws Myexception{
-		int tls=0;
-		for(allData data:datas){
-			tls+=data.perWeekClassNum*data.perWeekTimeNum;
-		}
-		if(tls%classNum!=0){
-			throw new Myexception("总教师课时数除以班级数目不等于零！");
-		}
-		int oneWeek=5*(morning+afternoon)+saturday+sunday;
-		int remain=oneWeek*classNum-tls;
-		if(remain<0){
-			throw new Myexception("所有老师周课时超过每周可安排课时");
-		}
-		int supplement=remain/classNum;
-		if(supplement>0){
-			for(int i=0;i<classNum;i++){
-				datas.add(new allData("", "", 1, supplement, false, false, -1));
-				teacherNum++;
+
+	public void paramCheck() throws Myexception {
+		int tls_double = 0;// 两周课时总数
+		for (Teacher data : datas) {
+			if (data instanceof HalfTeacher)
+				tls_double += data.perWeekClassNum * data.perWeekTimeNum;
+			else {
+				tls_double += 2 * data.perWeekClassNum * data.perWeekTimeNum;
 			}
 		}
-		
-		
+		if (tls_double % classNum != 0) {
+			throw new Myexception("总教师课时数除以班级数目不等于零！");
+		}
+		int oneWeek = 5 * (morning + afternoon) + saturday + sunday;
+		int remain = oneWeek * classNum * 2 - tls_double;
+		if (remain < 0) {
+			throw new Myexception("所有老师周课时超过每周可安排课时");
+		}
+		// int supplement = remain / classNum;
+		// if (supplement > 0) {
+		// for (int i = 0; i < classNum; i++) {
+		// datas.add(new allData("", "", 1, supplement, false, false, -1));
+		// teacherNum++;
+		// }
+		// }
+
 	}
 
 }

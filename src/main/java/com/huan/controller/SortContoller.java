@@ -1,8 +1,5 @@
 package com.huan.controller;
 
-import java.io.BufferedReader;
-import java.net.URLDecoder;
-import java.util.Enumeration;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.huan.definition.Mytime;
-import com.huan.definition.ResultType;
 import com.huan.model.Teacher;
 import com.huan.sort.util.startSortCourse;
 import com.huan.teacher.service.ITeacherService;

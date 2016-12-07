@@ -16,9 +16,17 @@ public class ConstantVal {
 	/*
 	 * 单双周
 	 */
-	public static final int BLANK_EMPTY=0;
-	public static final int BLANK_ODD=1;
-	public static final int BLANK_EVEN=2;
-	public static final int BLANK_DOUBLE=3;
+	public static final int BLANK_EMPTY=-1;
+	public static final int BLANK_ODD=-2;
+	public static final int BLANK_EVEN=-3;
+	public static final int BLANK_DOUBLE=-4;
+	
+	/*
+	 * 处理单双周、全周
+	 */
+	public static final int PROCESS_EVEN=0;
+	public static final int PROCESS_ODD=1;
+	public static final int PROCESS_WHOLE=2;
 
+	
 }
