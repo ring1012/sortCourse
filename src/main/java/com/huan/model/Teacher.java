@@ -1,6 +1,5 @@
 package com.huan.model;
 
-import java.util.ArrayList;
 
 public class Teacher {
 	public String teacherName;
@@ -9,17 +8,15 @@ public class Teacher {
 	public int perWeekTimeNum;
 	public boolean IsHead;
 	public boolean IsNext;
-	public int courseIndex;
-	public int teacherIndex;
-	public ArrayList<Integer>classes;
-	
-	public Teacher(String teacherName, String courseName, int perWeekClassNum, int perWeekTimeNum, boolean isHead) {
+	public Teacher() {
+	}
+	public Teacher(String teacherName, String courseName, int perWeekClassNum, int perWeekTimeNum, boolean isHead, boolean isNext) {
 		this.teacherName = teacherName;
 		this.courseName = courseName;
 		this.perWeekClassNum = perWeekClassNum;
 		this.perWeekTimeNum = perWeekTimeNum;
 		this.IsHead = isHead;
-		this.classes=new ArrayList<>();
+		this.IsNext=isNext;
 	}
 	public String getTeacherName() {
 		return teacherName;
@@ -58,6 +55,12 @@ public class Teacher {
 
 	public void setIsNext(boolean isNext) {
 		IsNext = isNext;
+	}
+	@Override
+	public String toString() {
+		return "Teacher [teacherName=" + teacherName + ", courseName=" + courseName + ", perWeekClassNum="
+				+ perWeekClassNum + ", perWeekTimeNum=" + perWeekTimeNum + ", IsHead=" + IsHead + ", IsNext=" + IsNext
+				+ "]";
 	}
 	
 	

@@ -9,6 +9,7 @@ import com.huan.definition.ConstantVal;
 import com.huan.definition.Position;
 import com.huan.definition.ResultType;
 import com.huan.exception.Myexception;
+import com.huan.model.BaseTeacher;
 import com.huan.model.HalfTeacher;
 import com.huan.model.Teacher;
 
@@ -28,14 +29,14 @@ public class startSortCourse {
 
 	public int lessonNum;
 
-	public List<Teacher> datas;
+	public List<BaseTeacher> datas;
 	public int teacherNum;
 	public int needLessons;
 	public boolean allowMorning;
 	public boolean[] everyWeek;
 	public SA sa = null;
 
-	public startSortCourse(int classNum, int morning, int afternoon, int saturday, int sunday, List<Teacher> datas,
+	public startSortCourse(int classNum, int morning, int afternoon, int saturday, int sunday, List<BaseTeacher> datas,
 			boolean allowMorning) {
 		super();
 		this.classNum = classNum;
@@ -240,7 +241,7 @@ public class startSortCourse {
 		for (int i = 0, j = 0; i < t_classNum; i++) {
 			for (; j < teacherNum;) {
 				if (datas.get(j).IsHead) {
-					datas.get(j).classes.add(i + 1);
+					datas.get(j).classes.add(i);
 					j++;
 					break;
 				} else {
@@ -253,7 +254,7 @@ public class startSortCourse {
 
 		for (int k = 0; k < t_diffCourseNums; k++) {
 			ArrayList<Integer> randomList = new ArrayList<Integer>();
-			for (int i = 1; i <= classNum; i++) {
+			for (int i = 0; i < classNum; i++) {
 				randomList.add(i);
 			}
 			Collections.shuffle(randomList);
@@ -329,7 +330,7 @@ public class startSortCourse {
 		int t = 0;
 		for (int i = 0; i < teacherNum; i++) {
 			if (datas.get(i).courseIndex == ConstantVal.COURSE_EMPTY && t != i) {
-				Teacher temp = datas.get(i);
+				BaseTeacher temp = datas.get(i);
 				datas.set(i, datas.get(t));
 				datas.set(t, temp);
 				t++;
@@ -337,7 +338,7 @@ public class startSortCourse {
 		}
 		for (int i = t; i < teacherNum; i++) {
 			if (datas.get(i).courseIndex == ConstantVal.COURSE_SPORT && t != i) {
-				Teacher temp = datas.get(i);
+				BaseTeacher temp = datas.get(i);
 				datas.set(i, datas.get(t));
 				datas.set(t, temp);
 				t++;
@@ -348,7 +349,7 @@ public class startSortCourse {
 			for (int j = i + 1; j < teacherNum; j++) {
 				if (datas.get(i).perWeekClassNum * datas.get(i).perWeekTimeNum < datas.get(j).perWeekClassNum
 						* datas.get(j).perWeekTimeNum) {
-					Teacher temp = datas.get(i);
+					BaseTeacher temp = datas.get(i);
 					datas.set(i, datas.get(j));
 					datas.set(j, temp);
 				}
@@ -364,7 +365,7 @@ public class startSortCourse {
 		// classIncludeTeacher
 		ArrayList<Integer> temp = new ArrayList<>();
 
-		for (int i = 1; i <= classNum; i++) {
+		for (int i = 0; i < classNum; i++) {
 			for (int m = 0; m < datas.size(); m++) {
 				if (datas.get(m).classes.contains(i)) {
 					temp.add(m);
@@ -397,8 +398,8 @@ public class startSortCourse {
 		everyClassIncludeTeacher();
 		initBlank();
 
-		sa = new SA(20, 20, 25.0, 0.8, datas, definedCost, classIncludeTeacher, needLessons, lessonNum, classNum,
-				everyWeek);
+		sa = new SA(20, 20, 25.0, 0.8, datas, definedCost, classIncludeTeacher, needLessons,  morning,  afternoon,saturday,sunday, classNum,
+				everyWeek,allowMorning);
 		sa.arrangeHalf();
 		sa.initWhole();
 		// printConflict(sa.datas);

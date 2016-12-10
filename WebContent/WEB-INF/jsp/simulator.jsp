@@ -32,12 +32,12 @@
 																	+ "<td>"
 																	+ _len
 																	+ "</td>"
-																	+ "<td><input type='text' name='teacherName' /></td>"
-																	+ "<td><input type='text' name='courseName' /></td>"
-																	+ "<td><input type='number' name='perWeekClassNum'  min='1' /></td>"
-																	+ "<td><input type='number' name='perWeekTimeNum'  min='1' /></td>"
-																	+ "<td><input type='checkbox' name='IsHead' value='"+_len+"'/></td>"
-																	+ "<td><input type='checkbox' name='IsNext' value='"+_len+"'/></td>"
+																	+ "<td><input type='text' name='teachers["+(_len-1)+"].teacherName' /></td>"
+																	+ "<td><input type='text' name='teachers["+(_len-1)+"].courseName' /></td>"
+																	+ "<td><input type='number' name='teachers["+(_len-1)+"].perWeekClassNum'  min='1' /></td>"
+																	+ "<td><input type='number' name='teachers["+(_len-1)+"].perWeekTimeNum'  min='1' /></td>"
+																	+ "<td><input type='checkbox' name='teachers["+(_len-1)+"].IsHead' /></td>"
+																	+ "<td><input type='checkbox' name='teachers["+(_len-1)+"].IsNext' /></td>"
 																	+ "<td><a href=\'#\' onclick=\'deltr("
 																	+ _len
 																	+ ")\'>删除</a></td>"
@@ -56,11 +56,12 @@
 						tableData[trindex] = new Array();
 						$(tritem).find("input").each(function(tdindex, tditem) {
 							tableData[trindex][tdindex] = $(tditem).val();//遍历每一个数据，并存入
-							if ($(tditem).is(':checked')) {
+							if ($(tditem).attr("name").indexOf("IsHead")!=-1&&$(tditem).is(":checked")) {
 								count++;
+// 								console.log($(tditem).attr("name"));
 							}
-							subMilasUrlArr[trindex] = tableData[trindex];//将每一行的数据存入
 						});
+						subMilasUrlArr[trindex] = tableData[trindex];//将每一行的数据存入
 					});
 					for ( var key in subMilasUrlArr) {
 						milasUrl[key] = subMilasUrlArr[key];//将每一行存入对象
@@ -87,6 +88,8 @@
 						return false;
 					}
 					if (count != $(".classNum").val()) {
+						console.log(count);
+						console.log(" "+$(".classNum").val());
 						alert("班级数目与班主任老师数目不符")
 						return false;
 					}
@@ -127,10 +130,12 @@
 		for (var i = index + 1, j = _len; i < j; i++) {
 			$("tr[id=\'" + i + "\']").attr("id", (i - 1));
 			$("tr[id=\'" + (i - 1) + "\'] td:nth-child(1)").html(i - 1);
-			$("tr[id=\'" + (i - 1) + "\'] td:nth-child(6) input:checkbox").val(
-					i - 1);
-			$("tr[id=\'" + (i - 1) + "\'] td:nth-child(7) input:checkbox").val(
-					i - 1);
+			$("tr[id=\'" + (i - 1) + "\'] td:nth-child(2) input").attr("name","teachers["+(i-2)+"].teacherName");
+			$("tr[id=\'" + (i - 1) + "\'] td:nth-child(3) input").attr("name","teachers["+(i-2)+"].courseName");
+			$("tr[id=\'" + (i - 1) + "\'] td:nth-child(4) input").attr("name","teachers["+(i-2)+"].perWeekClassNum");
+			$("tr[id=\'" + (i - 1) + "\'] td:nth-child(5) input").attr("name","teachers["+(i-2)+"].perWeekTimeNum");
+			$("tr[id=\'" + (i - 1) + "\'] td:nth-child(6) input").attr("name","teachers["+(i-2)+"].IsHead");
+			$("tr[id=\'" + (i - 1) + "\'] td:nth-child(7) input").attr("name","teachers["+(i-2)+"].IsNext");
 			$("tr[id=\'" + (i - 1) + "\'] td:nth-child(8) a").attr("onclick",
 					"deltr(" + (i - 1) + ")");
 		}
@@ -179,35 +184,35 @@
 				%>
 				<tr id="<%=(k + 1)%>">
 					<td><%=(k + 1)%></td>
-					<td><input type="text" name="teacherName"
+					<td><input type="text" name=<%=String.format("teachers[%d].teacherName", k)%>
 						value=<%=teachers.get(k).getTeacherName()%>></td>
-					<td><input type="text" name="courseName"
+					<td><input type="text" name=<%=String.format("teachers[%d].courseName", k)%>
 						value=<%=teachers.get(k).getCourseName()%>></td>
-					<td><input type="number" name="perWeekClassNum"
+					<td><input type="number" name=<%=String.format("teachers[%d].perWeekClassNum", k)%>
 						value=<%=teachers.get(k).getPerWeekClassNum()%>></td>
-					<td><input type="number" name="perWeekTimeNum"
+					<td><input type="number" name=<%=String.format("teachers[%d].perWeekTimeNum", k)%>
 						value=<%=teachers.get(k).getPerWeekTimeNum()%>></td>
 					<%
 						if (teachers.get(k).isIsHead()) {
 					%>
-					<td><input type="checkbox" name="IsHead" checked="true"
-						value=<%=(k + 1)%> /></td>
+					<td><input type="checkbox" name=<%=String.format("teachers[%d].IsHead", k)%> checked="true"
+						/></td>
 					<%
 						} else {
 					%>
-					<td><input type="checkbox" name="IsHead" value=<%=(k + 1)%> /></td>
+					<td><input type="checkbox" name=<%=String.format("teachers[%d].IsHead", k)%> /></td>
 					<%
 						}
 					%>
 					<%
 						if (teachers.get(k).isIsNext()) {
 					%>
-					<td><input type="checkbox" name="IsNext" checked="true"
-						value=<%=(k + 1)%> /></td>
+					<td><input type="checkbox" name=<%=String.format("teachers[%d].IsNext", k)%> checked="true"
+						/></td>
 					<%
 						} else {
 					%>
-					<td><input type="checkbox" name="IsNext" value=<%=(k + 1)%> /></td>
+					<td><input type="checkbox" name=<%=String.format("teachers[%d].IsNext", k)%>  /></td>
 					<%
 						}
 					%>

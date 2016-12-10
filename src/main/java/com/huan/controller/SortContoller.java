@@ -6,11 +6,12 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.huan.definition.Mytime;
 import com.huan.model.Teacher;
+import com.huan.model.TeacherForm;
 import com.huan.sort.util.startSortCourse;
 import com.huan.teacher.service.ITeacherService;
 import com.huan.teacher.service.imp.ChangeService;
@@ -27,7 +28,7 @@ public class SortContoller {
 
 	@Autowired
 	DealService dealService;
-	
+
 	@Autowired
 	ChangeService changeService;
 
@@ -39,26 +40,24 @@ public class SortContoller {
 	@RequestMapping(value = "/test.action", method = RequestMethod.POST)
 	public String test() {
 		try {
-			String fixTable=request.getParameter("fixTable");
-			String changeStr=request.getParameter("changeStr");
-			startSortCourse rt=(startSortCourse)request.getSession().getAttribute("myCourse");
-			changeService.excute(fixTable,changeStr,rt,request);
-			
+			String fixTable = request.getParameter("fixTable");
+			String changeStr = request.getParameter("changeStr");
+			startSortCourse rt = (startSortCourse) request.getSession().getAttribute("myCourse");
+			changeService.excute(fixTable, changeStr, rt, request);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			// TODO: handle exception
 		}
-	
-  		return "result";
+
+		return "result";
 	}
 
 	@RequestMapping(value = "/deal.action", method = RequestMethod.POST)
-	public String deal() {
-		Mytime.start = System.currentTimeMillis();
-		System.out.println("simulator start!");
+	public String deal( TeacherForm form) {
 		try {
 			request.setCharacterEncoding("UTF-8");
-			dealService.excute(request);
+			dealService.excute(form.getTeachers());
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -99,17 +98,17 @@ public class SortContoller {
 	@RequestMapping(value = "/change.action", method = RequestMethod.POST)
 	public String change() {
 		try {
-			String fixTable=request.getParameter("fixTable");
-			String changeStr=request.getParameter("changeStr");
-			startSortCourse rt=(startSortCourse)request.getSession().getAttribute("myCourse");
-			changeService.excute(fixTable,changeStr,rt,request);
-			
+			String fixTable = request.getParameter("fixTable");
+			String changeStr = request.getParameter("changeStr");
+			startSortCourse rt = (startSortCourse) request.getSession().getAttribute("myCourse");
+			changeService.excute(fixTable, changeStr, rt, request);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			// TODO: handle exception
 		}
-	
-  		return "result";
+
+		return "result";
 	}
 
 }
