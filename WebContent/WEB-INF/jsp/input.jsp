@@ -16,6 +16,29 @@
 <script type="text/javascript"
 	src="${ctx}/Resources/js/jquery/jquery-ui-1.9.2.custom.min.js"></script>
 <title>输入信息</title>
+<style type="text/css">
+#page{
+	background-color:#999999;
+}
+.right {
+	border: 0px;
+	width: 13%;
+	position: fixed;
+	right: 1%;
+	top: 3%;
+	font-size: 15px;
+	font-color: red;
+	text-align: center;
+}
+
+.myInfo {
+	font-size: 20px;
+	display:"none";
+}
+.expand{
+	color:white;
+}
+</style>
 </head>
 <script>
 
@@ -229,15 +252,21 @@ $(function() {
 			</form>
 			<br />
 		</div>
-		<div class="right">
-			<h6 class="myShow">tips(单击显示或隐藏)</h6>
-			<div class="myInfo">
-				所有空格必须输入<br /> 点击添加按钮添加教师信息<br /> 删除选项可删除某行<br /> 输入完毕后点击提交按钮<br />
-				模拟数据模拟演示<br /> 班主任数目=班级总数<br /> 令a=任教班级数目<br /> 令b=每周每班课时数目<br />
-				令c=班级数目<br /> 令m=上午几节课<br /> 令n=下午几节课<br /> 令s=周六一共几节课<br />
-				令h=周日一共几节课<br /> 有：∑(a*b)=c*(5*(m+n)+s+h)<br />
+			<div class="right">
+			<div id="page">
+
+				<div id="faqSection">
+						<dt>
+							<h3 class="myShow expand">&nbsp;tips&nbsp;</h3>
+						</dt>
+				</div>
+				<div class="myInfo" style="display: none;">
+					<br /> 所有空格必须输入<br /> 点击添加按钮添加教师信息<br /> 删除选项可删除某行<br /> 输入完毕后点击提交按钮<br />
+				模拟数据模拟演示<br /> 班主任数目=班级总数<br /> <br /> 
+				</div>
 			</div>
 		</div>
+		
 	</div>
 </body>
 </html>

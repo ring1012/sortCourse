@@ -24,25 +24,39 @@
 <title>排课结果</title>
 
 <style type="text/css">
-#myOper {
-	width: 120px;
+#page{
+	background-color:#999999;
+}
+.right {
+	border: 0px;
+	width: 13%;
 	position: fixed;
-	right: 0%;
-	top: 10%;
+	right: 1%;
+	top: 3%;
+	font-size: 15px;
+	font-color: red;
+	text-align: center;
+}
+
+.myInfo {
+	font-size: 20px;
+	display:"none";
+}
+.expand{
+	color:white;
 }
 </style>
 </head>
 <script>
-
 	var classNums;
 	var lessonNums;
 	var changeStr;
 	var fixTable;
 	$(document).ready(function() {
 		classNums = $("tr[id='rooms'] td").length - 1;
-		console.log($("tr").length );
-		lessonNums = ($("tr").length  - 8) / 7;
-		console.log(classNums+" "+lessonNums);
+		console.log($("tr").length);
+		lessonNums = ($("tr").length - 8) / 7;
+		console.log(classNums + " " + lessonNums);
 		changeStr = new Array(classNums);
 		fixTable = new Array(classNums);
 		for (var i = 0; i < classNums; i++) {
@@ -54,6 +68,7 @@
 		for (var i = 0; i < classNums; i++) {
 			changeStr[i] = "";
 		}
+
 	})
 
 	function allowDrop(ev) {
@@ -114,7 +129,7 @@
 		positionStr = ev.target.className;
 		position = positionStr.split(" ");
 
-		console.log("fix: "+position);
+		console.log("fix: " + position);
 		if (fixTable[position[0]][position[1]] == 0) {
 			var tag = "[class='" + position[0] + " " + position[1] + "']";
 			$("body").find(tag).eq(0).attr("style", "background:red");
@@ -154,7 +169,7 @@
 	$(document).ready(function() {
 		$(".myShow").click(function() {
 			if ($(".myInfo").css("display") == "none") {
-				$(".myInfo").css("display", "inline");
+				$(".myInfo").css({"display": "inline","color": "#660000"});
 			} else {
 				$(".myInfo").css("display", "none");
 			}
@@ -162,121 +177,166 @@
 	});
 </script>
 <body>
-	<div class="left">
-		<div id="accordion" class="container">
-			<%
-				Object result = request.getAttribute("result");
-				Object myCourse = session.getAttribute("myCourse");
-				if (result == null || myCourse == null) {
-					out.print("<h1>无解<h1/>");
-				} else {
-					Map<Integer, String> indexMap = new HashMap<Integer, String>();
-					indexMap.put(1, "一");
-					indexMap.put(2, "二");
-					indexMap.put(3, "三");
-					indexMap.put(4, "四");
-					indexMap.put(5, "五");
-					indexMap.put(6, "六");
-					indexMap.put(7, "日");
-					ResultType ret = (ResultType) result;
-					int lessonNum = ret.lessonNum;
-					int needLessons = lessonNum * 7;
-					boolean everyWeek[] = ret.everyWeek;
-					int sheet[][] = ret.sheetInfor;
-					int odd[][] = ret.oddSheet;
-					int even[][] = ret.evenSheet;
-					List<BaseTeacher> datas = ((startSortCourse) myCourse).datas;
-					int classNum = ret.classNum;
-			%>
+	<div class="container">
+		<div class="left">
+			<div id="accordion">
+				<%
+					Object result = request.getAttribute("result");
+					Object myCourse = session.getAttribute("myCourse");
+					if (result == null || myCourse == null) {
+						out.print("<h1>无解<h1/>");
+					} else {
+						Map<Integer, String> indexMap = new HashMap<Integer, String>();
+						indexMap.put(1, "一");
+						indexMap.put(2, "二");
+						indexMap.put(3, "三");
+						indexMap.put(4, "四");
+						indexMap.put(5, "五");
+						indexMap.put(6, "六");
+						indexMap.put(7, "日");
+						ResultType ret = (ResultType) result;
+						int lessonNum = ret.lessonNum;
+						int needLessons = lessonNum * 7;
+						boolean everyWeek[] = ret.everyWeek;
+						int sheet[][] = ret.sheetInfor;
+						int odd[][] = ret.oddSheet;
+						int even[][] = ret.evenSheet;
+						List<BaseTeacher> datas = ((startSortCourse) myCourse).datas;
+						int classNum = ret.classNum;
+				%>
 
 
-			<h3>年级老师-结果</h3>
-			<div>
-				<table id="tab" border="1"
-					class="table table-hover table-striped table-bordered">
-					<tr id="rooms">
-						<td></td>
+				<h2>年级老师-结果</h2>
+				<div>
+					<table id="tab" border="1"
+						class="table table-hover table-striped table-bordered">
+						<tr id="rooms">
+							<td></td>
+							<%
+								for (int i = 0; i < classNum; i++) {
+							%>
+							<td><%=String.format("%d 班", i + 1)%></td>
+							<%
+								}
+							%>
+
+						</tr>
 						<%
-							for (int i = 0; i < classNum; i++) {
+							for (int j = 0; j < needLessons; j++) {
+									if (j % lessonNum == 0) {
 						%>
-						<td><%=String.format("%d 班", i + 1)%></td>
+						<tr>
+							<td rowspan="<%=(lessonNum + 1)%>">
+								星期<%=indexMap.get(j / lessonNum + 1)%></td>
+						</tr>
 						<%
 							}
 						%>
+						<tr>
 
-					</tr>
-					<%
-						for (int j = 0; j < needLessons; j++) {
-								if (j % lessonNum == 0) {
-					%>
-					<tr>
-						<td rowspan="<%=(lessonNum + 1)%>">星期<%=indexMap.get(j / lessonNum + 1)%></td>
-					</tr>
-					<%
-						}
-					%>
-					<tr>
+							<%
+								for (int i = 0; i < classNum; i++) {
+											if (sheet[i][j] >= 0) {
+												BaseTeacher bt = datas.get(sheet[i][j]);
+												String f = "false";
+												if (bt.headClass == i) {
+													f = "true";
+												}
+							%>
+							<td class="<%=String.format("%d %d", i, j)%>" draggable="true"
+								ondragstart="drag(event)" ondrop="drop(event)"
+								ondragover="allowDrop(event)" onclick="fixCell(event)"
+								title="教师名: <%=bt.teacherName%>&#10课程名: <%=bt.courseName%>&#10班级数: <%=bt.perWeekClassNum%>&#10周课时数: <%=bt.perWeekTimeNum%>&#10班主任: <%=f%>&#10全周上课"><%=bt.teacherName%></td>
+							<%
+								} else {
+												String temp = "";
+												String title = "此课时为空";
+												if (odd[i][j] >= 0) {
+													BaseTeacher bt = datas.get(odd[i][j]);
+													String f = "false";
+													if (bt.headClass == i) {
+														f = "true";
+													}
+													temp += String.format("%s<br/>", bt.teacherName);
+													title = String.format(
+															"教师名: %s&#10课程名: %s&#10班级数: %d&#10周课时数: %d&#10班主任: %s&#10单周上课&#10",
+															bt.teacherName, bt.courseName, bt.perWeekClassNum, bt.perWeekTimeNum, f);
+												}
+												if (even[i][j] >= 0) {
+													BaseTeacher bt = datas.get(even[i][j]);
+													String f = "false";
+													if (bt.headClass == i) {
+														f = "true";
+													}
+													temp += String.format("%s", bt.teacherName);
+													title += String.format(
+															"&#10教师名: %s&#10课程名: %s&#10班级数: %d&#10周课时数: %d&#10班主任: %s&#10双周上课&#10",
+															bt.teacherName, bt.courseName, bt.perWeekClassNum, bt.perWeekTimeNum, f);
 
-						<%
-							for (int i = 0; i < classNum; i++) {
-										if (sheet[i][j] >= 0) {
-						%>
-						<td class="<%=String.format("%d %d", i, j)%>" draggable="true"
-							ondragstart="drag(event)" ondrop="drop(event)"
-							ondragover="allowDrop(event)" onclick="fixCell(event)"><%=datas.get(sheet[i][j]).teacherName%></td>
-						<%
-							} else {
-											String temp = "";
-											if (odd[i][j] >= 0) {
-												temp += String.format("%so", datas.get(odd[i][j]).teacherName);
-											}
-											if (even[i][j] >= 0) {
-												temp += String.format("%se", datas.get(even[i][j]).teacherName);
-											}
-											if (temp != ""||(even[i][j]==-1&&odd[i][j]==-1&&sheet[i][j]==-1)) {
-						%>
-						<td class="<%=String.format("%d %d", i, j)%>" draggable="true"
-							ondragstart="drag(event)" ondrop="drop(event)"
-							ondragover="allowDrop(event)" onclick="fixCell(event)"><%=temp%></td>
+												}
+												if (temp != "" || (even[i][j] == -1 && odd[i][j] == -1 && sheet[i][j] == -1)) {
+							%>
+							<td class="<%=String.format("%d %d", i, j)%>" draggable="true"
+								ondragstart="drag(event)" ondrop="drop(event)"
+								ondragover="allowDrop(event)" onclick="fixCell(event)"
+								title="<%=title%>"><%=temp%></td>
 
-						<%
-							} else {
-						%>
-								<td></td>
-						<%
-							}
-						%>
+							<%
+								} else {
+							%>
+							<td title="此课时不可安排课程"></td>
+							<%
+								}
+							%>
 
-						<%
-							}
-						%>
+							<%
+								}
+							%>
 
 
-						<%
-							}
-						%>
+							<%
+								}
+							%>
 
-						<%
-							}
-						%>
-						<%
-							}
-						%>
-					
-				</table>
+							<%
+								}
+							%>
+							<%
+								}
+							%>
+						
+					</table>
+				</div>
+
+
+				<button type="button" class="btn btn-info btn-lg"
+					style="aligen: center" id="btnConfirm" onclick="changeSubmit()">提交</button>
+				<br />
+				<br />
+				<br />
+				<br />
+				<br />
 			</div>
-
-
-			<button type="button" class="btn btn-info btn-lg"
-				style="aligen: center" id="btnConfirm" onclick="changeSubmit()">提交</button>
-			<br /> <br /> <br /> <br /> <br />
 		</div>
-	</div>
-	<div class="right">
-		<h6 class="myShow">tips(单击显示或隐藏)</h6>
-		<div class="myInfo">
-			分为教师处理结果和 <br /> 课程处理结果表单; <br /> 对两张表单的操作会同步; <br /> 拖动以调整位置; <br />
-			单击以固定位置. <br />
+		<div class="right">
+			<div id="page">
+
+				<div id="faqSection">
+						<dt>
+							<h3 class="myShow expand">&nbsp;tips&nbsp;</h3>
+						</dt>
+				</div>
+				<div class="myInfo" style="display: none;">
+				<br />
+					鼠标停留查看详情
+					<br />
+					拖动以调整位置;
+					<br />
+					单击以固定位置.
+					<br />
+					<br />
+				</div>
+			</div>
 		</div>
 	</div>
 </body>

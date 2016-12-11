@@ -241,6 +241,7 @@ public class startSortCourse {
 		for (int i = 0, j = 0; i < t_classNum; i++) {
 			for (; j < teacherNum;) {
 				if (datas.get(j).IsHead) {
+					datas.get(j).headClass=i;
 					datas.get(j).classes.add(i);
 					j++;
 					break;
