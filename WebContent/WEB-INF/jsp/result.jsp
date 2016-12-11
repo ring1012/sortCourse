@@ -33,11 +33,6 @@
 </style>
 </head>
 <script>
-	$(function() {
-		$("#accordion").accordion({
-			collapsible : true
-		});
-	});
 
 	var classNums;
 	var lessonNums;

@@ -268,16 +268,6 @@ public class SA {
 
 	}
 
-	public void printArray(int sheet[][]) {
-		int row = sheet.length, col = sheet[0].length;
-		for (int i = 0; i < col; i++) {
-			for (int j = 0; j < row; j++) {
-				System.out.print(sheet[j][i] + "\t");
-			}
-			System.out.println();
-		}
-	}
-
 	private void moveTheBlank(int j, Set<Integer> oneRow, int[][] current, int[][] theOther) throws Myexception {
 
 		if (oneRow.size() == 0) {
@@ -285,6 +275,8 @@ public class SA {
 		}
 		List<Position> changePosition = new ArrayList<>();
 		for (int oneClass : oneRow) {
+			if (fixTable[oneClass][j] == 1)
+				continue;
 			int thisClassLesson[] = current[oneClass];
 			int t1 = current[oneClass][j];
 			boolean thisSite2 = false;
@@ -1152,11 +1144,11 @@ public class SA {
 				}
 			}
 			logger.info("最后连堂: " + sum + "\n");
-			this.sheetInfor=cloneArray(bestResult.sheetInfor);
+			this.sheetInfor = cloneArray(bestResult.sheetInfor);
 			bestResult.indexTransform(bestResult.sheetInfor, whole2pgi, ConstantVal.PROCESS_WHOLE);
 			bestResult.indexTransform(oddSheet, half2pgi, ConstantVal.PROCESS_ODD);
 			bestResult.indexTransform(evenSheet, half2pgi, ConstantVal.PROCESS_EVEN);
-			
+
 			return bestResult;
 		} else
 			return null;
@@ -1915,13 +1907,13 @@ public class SA {
 		}
 
 	}
-	
-	public int[][] cloneArray(int sheet[][]){
-		int row=sheet.length,col=sheet[0].length;
-		int ret[][]=new int[row][col];
-		for(int i=0;i<row;i++){
-			for(int j=0;j<col;j++){
-				ret[i][j]=sheet[i][j];
+
+	public int[][] cloneArray(int sheet[][]) {
+		int row = sheet.length, col = sheet[0].length;
+		int ret[][] = new int[row][col];
+		for (int i = 0; i < row; i++) {
+			for (int j = 0; j < col; j++) {
+				ret[i][j] = sheet[i][j];
 			}
 		}
 		return ret;
