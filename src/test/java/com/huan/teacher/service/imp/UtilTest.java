@@ -1,10 +1,14 @@
 package com.huan.teacher.service.imp;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import org.junit.Test;
+
+import com.huan.definition.Position;
 
 public class UtilTest {
 
@@ -38,6 +42,15 @@ public class UtilTest {
 		int B[][]=A.clone();
 		B[1][1]=100;
 		System.out.println(A[1][1]);
+	}
+	
+	@Test
+	public void listCompare(){
+		Set<Position>ps=new HashSet<>();
+		ps.add(new Position(1,2));
+		ps.add(new Position(1, 2));
+		System.out.println(ps.size());
+		
 	}
 	
 }

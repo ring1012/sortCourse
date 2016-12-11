@@ -20,18 +20,20 @@ public class ChangeService {
 		String mic[]=fixTable.split(",");
 		int micNum[]=ConvertUtil.parsIntArray(mic);
 		int count=0;
-		for(int i=0;i<classNum;i++){
-			for(int j=0;j<lessonNum*7;j++){
-				table[i][j]=micNum[count++];
+		if(micNum.length!=0){
+			for(int i=0;i<classNum;i++){
+				for(int j=0;j<lessonNum*7;j++){
+					table[i][j]=micNum[count++];
+				}
 			}
 		}
 		String exchange1[]=changeStr.split(",");
 		System.out.println(exchange1.length);
 		count=0;
-		String exchange[]=new String[15];
+		String exchange[]=new String[classNum];
 		changeStr=","+changeStr+",";
 		int index1=0,index2=0;
-		while(count<15){
+		while(count<classNum){
 			index1=index2;
 			index2=changeStr.indexOf(",",index1+1);
 			if(index1+1==index2){
@@ -42,7 +44,7 @@ public class ChangeService {
 			
 		}
 		SA sa=myCourse.sa;
-		sa.changeAttr(table,exchange,sa.bestResult.sheetInfor);
+		sa.changeAttr(table,exchange,sa.sheetInfor);
 		ResultType ret=myCourse.changeAndDeal();
 		request.getSession().setAttribute("myCourse", myCourse);
 		request.setAttribute("result", ret);

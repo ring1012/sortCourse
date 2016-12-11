@@ -45,7 +45,9 @@
 	var fixTable;
 	$(document).ready(function() {
 		classNums = $("tr[id='rooms'] td").length - 1;
-		lessonNums = ($("tr").length / 2 - 8) / 7;
+		console.log($("tr").length );
+		lessonNums = ($("tr").length  - 8) / 7;
+		console.log(classNums+" "+lessonNums);
 		changeStr = new Array(classNums);
 		fixTable = new Array(classNums);
 		for (var i = 0; i < classNums; i++) {
@@ -117,6 +119,7 @@
 		positionStr = ev.target.className;
 		position = positionStr.split(" ");
 
+		console.log("fix: "+position);
 		if (fixTable[position[0]][position[1]] == 0) {
 			var tag = "[class='" + position[0] + " " + position[1] + "']";
 			$("body").find(tag).eq(0).attr("style", "background:red");
@@ -235,7 +238,7 @@
 											if (even[i][j] >= 0) {
 												temp += String.format("%se", datas.get(even[i][j]).teacherName);
 											}
-											if (temp != "") {
+											if (temp != ""||(even[i][j]==-1&&odd[i][j]==-1&&sheet[i][j]==-1)) {
 						%>
 						<td class="<%=String.format("%d %d", i, j)%>" draggable="true"
 							ondragstart="drag(event)" ondrop="drop(event)"

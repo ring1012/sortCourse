@@ -403,13 +403,13 @@ public class startSortCourse {
 		sa.arrangeHalf();
 		sa.initWhole();
 		// printConflict(sa.datas);
-		return sa.solve();
+		return sa.solve(true);
 
 	}
 	// </excute>
 
 	public ResultType changeAndDeal() throws Myexception {
-		return sa.solve();
+		return sa.solve(false);
 	}
 
 //	public void printConflict(ArrayList<WholeTeacher> datas) {
