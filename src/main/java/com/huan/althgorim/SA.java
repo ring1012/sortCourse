@@ -10,9 +10,8 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-
 import com.huan.course.util.ConvertUtil;
+import com.huan.course.util.LoggerUtil;
 import com.huan.definition.ConstantVal;
 import com.huan.definition.MyRandom;
 import com.huan.definition.Position;
@@ -25,7 +24,7 @@ import com.huan.sort.util.ProcessUtil;
 import com.huan.model.Teacher;
 
 public class SA {
-	private static final Logger logger = Logger.getLogger(SA.class);
+	private static final LoggerUtil logger = new LoggerUtil(SA.class);
 
 	private int N;// 每个温度迭代步长
 	private int T;// 降温次数
@@ -149,7 +148,8 @@ public class SA {
 		this.alter = new boolean[classNum];
 
 		for (int i = 0; i < classNum; i++) {
-			alter[i] = random.nextBoolean();
+//			alter[i] = random.nextBoolean();
+			alter[i++]=true;
 		}
 		this.allowMorning = allowMorning;
 	}
@@ -326,7 +326,7 @@ public class SA {
 		if (theOther[oneClass][k] >= 0) {
 			return 0.00001;
 		}
-		return 60;
+		return Integer.MAX_VALUE/10000;
 	}
 
 	public void updateSheetBySingleWeek(int sheetInfor[][], int odd[][], int even[][]) {
@@ -745,7 +745,7 @@ public class SA {
 
 		double res = 0.0;
 		if (pu.weekY.contains(k)) {
-			res = Integer.MAX_VALUE;
+			res = Integer.MAX_VALUE/10;
 		}
 		return res;
 	}
@@ -1031,6 +1031,9 @@ public class SA {
 				}
 			}
 			logger.info("最后连堂: " + sum + "\n");
+			bestResult.indexTransform(bestResult.sheetInfor, whole2pgi, ConstantVal.PROCESS_WHOLE);
+			bestResult.indexTransform(oddSheet, half2pgi, ConstantVal.PROCESS_ODD);
+			bestResult.indexTransform(evenSheet, half2pgi, ConstantVal.PROCESS_EVEN);
 			return bestResult;
 		} else
 			return null;
@@ -1038,7 +1041,7 @@ public class SA {
 		// printConflict(tempResult.datas);
 
 	}
-
+	
 	public boolean checkResult(ResultType result) {
 		logger.info("cheack result\n");
 		int sheet[][] = result.sheetInfor;

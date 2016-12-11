@@ -12,6 +12,7 @@
 
 	<appender name="INFO" class="org.apache.log4j.DailyRollingFileAppender">
 		<param name="File" value="C://logs//monitor.log " />
+		<param name="DatePattern" value="'.'yyyy-MM-dd'.log'" /> 
 		<param name="Append" value="true" />
 		<param name="Threshold" value="DEBUG" />
 		<layout class="org.apache.log4j.PatternLayout">
@@ -25,6 +26,7 @@
 
 	<appender name="ERROR" class="org.apache.log4j.DailyRollingFileAppender">
 		<param name="File" value="C://logs//monitor.err" />
+		<param name="DatePattern" value="'.'yyyy-MM-dd'.log'" /> 
 		<param name="Append" value="true" />
 		<param name="Threshold" value="ERROR" />
 		<layout class="org.apache.log4j.PatternLayout">
@@ -38,6 +40,7 @@
 
 	<appender name="WARN" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="C://logs//monitor.warn" />
+		<param name="DatePattern" value="'.'yyyy-MM-dd'.log'" /> 
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="500KB" />
 		<param name="MaxBackupIndex" value="2" />
@@ -51,6 +54,7 @@
 	</appender>
 <appender name="DEBUG" class="org.apache.log4j.RollingFileAppender">
 		<param name="File" value="C://logs//monitor.all" />
+		<param name="DatePattern" value="'.'yyyy-MM-dd'.log'" /> 
 		<param name="Append" value="true" />
 		<param name="MaxFileSize" value="500KB" />
 		<param name="MaxBackupIndex" value="2" />

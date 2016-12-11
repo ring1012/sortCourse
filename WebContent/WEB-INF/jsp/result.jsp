@@ -1,6 +1,7 @@
+<%@page import="com.huan.sort.util.startSortCourse"%>
 <%@page import="java.util.HashMap"%>
 <%@page import="java.util.Map"%>
-<%@page import="com.huan.model.allData"%>
+<%@page import="com.huan.model.BaseTeacher"%>
 <%@page import="java.util.List"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
@@ -152,23 +153,23 @@
 		form.submit();
 
 	}
-	$(document).ready(function(){
-		  $(".myShow").click(function(){
-			if($(".myInfo").css("display")=="none"){
-				$(".myInfo").css("display","inline");
-			}else{
-				$(".myInfo").css("display","none");
+	$(document).ready(function() {
+		$(".myShow").click(function() {
+			if ($(".myInfo").css("display") == "none") {
+				$(".myInfo").css("display", "inline");
+			} else {
+				$(".myInfo").css("display", "none");
 			}
-		  });
 		});
+	});
 </script>
 <body>
 	<div class="left">
 		<div id="accordion" class="container">
 			<%
 				Object result = request.getAttribute("result");
-
-				if (result == null) {
+				Object myCourse = session.getAttribute("myCourse");
+				if (result == null || myCourse == null) {
 					out.print("<h1>无解<h1/>");
 				} else {
 					Map<Integer, String> indexMap = new HashMap<Integer, String>();
@@ -184,7 +185,9 @@
 					int needLessons = lessonNum * 7;
 					boolean everyWeek[] = ret.everyWeek;
 					int sheet[][] = ret.sheetInfor;
-					List<allData> datas = ret.datas;
+					int odd[][] = ret.oddSheet;
+					int even[][] = ret.evenSheet;
+					List<BaseTeacher> datas = ((startSortCourse) myCourse).datas;
 					int classNum = ret.classNum;
 			%>
 
@@ -218,77 +221,30 @@
 
 						<%
 							for (int i = 0; i < classNum; i++) {
-										if (everyWeek[j] == false) {
+										if (sheet[i][j] >= 0) {
 						%>
 						<td class="<%=String.format("%d %d", i, j)%>" draggable="true"
 							ondragstart="drag(event)" ondrop="drop(event)"
 							ondragover="allowDrop(event)" onclick="fixCell(event)"><%=datas.get(sheet[i][j]).teacherName%></td>
 						<%
 							} else {
-						%>
-						<td></td>
-						<%
-							}
-						%>
-
-
-
-
-						<%
-							}
-						%>
-
-						<%
-							}
-						%>
-					
-				</table>
-			</div>
-			<h3>年级课程-结果</h3>
-			<div>
-				<table id="tab" border="1"
-					class="table table-hover table-striped table-bordered">
-					<tr>
-						<td></td>
-						<%
-							for (int i = 0; i < classNum; i++) {
-						%>
-						<td><%=String.format("%d 班", i + 1)%></td>
-						<%
-							}
-						%>
-
-					</tr>
-					<%
-						for (int j = 0; j < needLessons; j++) {
-								if (j % lessonNum == 0) {
-					%>
-					<tr>
-						<td rowspan="<%=(lessonNum + 1)%>">星期<%=indexMap.get(j / lessonNum + 1)%></td>
-					</tr>
-					<%
-						}
-					%>
-					<tr>
-
-						<%
-							for (int i = 0; i < classNum; i++) {
-										if (everyWeek[j] == false) {
+											String temp = "";
+											if (odd[i][j] >= 0) {
+												temp += String.format("%so", datas.get(odd[i][j]).teacherName);
+											}
+											if (even[i][j] >= 0) {
+												temp += String.format("%se", datas.get(even[i][j]).teacherName);
+											}
+											if (temp != "") {
 						%>
 						<td class="<%=String.format("%d %d", i, j)%>" draggable="true"
 							ondragstart="drag(event)" ondrop="drop(event)"
-							ondragover="allowDrop(event)" onclick="fixCell(event)"><%=datas.get(sheet[i][j]).courseName%></td>
+							ondragover="allowDrop(event)" onclick="fixCell(event)"><%=temp%></td>
+
 						<%
 							} else {
 						%>
-						<td></td>
-						<%
-							}
-						%>
-
-
-
-
+								<td></td>
 						<%
 							}
 						%>
@@ -298,26 +254,31 @@
 						%>
 
 
+						<%
+							}
+						%>
+
+						<%
+							}
+						%>
 						<%
 							}
 						%>
 					
 				</table>
-
 			</div>
+
+
 			<button type="button" class="btn btn-info btn-lg"
-				style="aligen: center" id="btnConfirm" onclick="changeSubmit()">
-				提交</button>
+				style="aligen: center" id="btnConfirm" onclick="changeSubmit()">提交</button>
 			<br /> <br /> <br /> <br /> <br />
 		</div>
 	</div>
 	<div class="right">
 		<h6 class="myShow">tips(单击显示或隐藏)</h6>
 		<div class="myInfo">
-			分为教师处理结果和<br/>课程处理结果表单;<br/>
-			对两张表单的操作会同步;<br/>
-			拖动以调整位置;<br/>
-			单击以固定位置.<br/>
+			分为教师处理结果和 <br /> 课程处理结果表单; <br /> 对两张表单的操作会同步; <br /> 拖动以调整位置; <br />
+			单击以固定位置. <br />
 		</div>
 	</div>
 </body>

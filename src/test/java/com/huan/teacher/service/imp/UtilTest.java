@@ -25,5 +25,19 @@ public class UtilTest {
 			System.out.println(random.nextInt(2));
 		}
 	}
+	
+	@Test
+	public void test3(){
+		System.out.println(Integer.MAX_VALUE);
+		System.out.println(Integer.MAX_VALUE+88888);
+	}
 
+	@Test
+	public void arryClone(){
+		int A[][]=new int[2][2];
+		int B[][]=A.clone();
+		B[1][1]=100;
+		System.out.println(A[1][1]);
+	}
+	
 }
