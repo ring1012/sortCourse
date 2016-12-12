@@ -26,12 +26,20 @@ public class DealService {
 		int classNum = Integer.parseInt(request.getParameter("classNum"));
 		int morning = Integer.parseInt(request.getParameter("morning"));
 		int afternoon = Integer.parseInt(request.getParameter("afternoon"));
-		int saturday = Integer.parseInt(request.getParameter("saturday"));
-		int sunday = Integer.parseInt(request.getParameter("sunday"));
+		int saturday=0;
+		try {
+			 saturday = Integer.parseInt(request.getParameter("saturday"));
+		} catch (Exception e) {
+		}
+		int sunday=0;
+		try {
+			sunday= Integer.parseInt(request.getParameter("sunday"));
+		} catch (Exception e) {
+		}
 		String allowMorning_s = request.getParameter("allowMorning");
-		boolean allowMorning = false;
-		if (allowMorning_s != null) {
-			allowMorning = true;
+		boolean allowMorning = true;
+		if (allowMorning_s == null||allowMorning_s=="false"||allowMorning_s=="off") {
+			allowMorning = false;
 		}
 		int i = 0;
 		List<BaseTeacher>tsList=new ArrayList<>();

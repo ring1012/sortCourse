@@ -32,15 +32,10 @@
 </head>
 <body>
 
-	<p>请把 W3School 的图片拖放到矩形中：</p>
-
-	<div id="div1" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-	<div id="div2" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
-	<br/>
-	<div id="drag1" draggable="true"
-		ondragstart="drag(event)"><input type="text" value="sssseeeeeeeeddddddddaaaaaaaaaa"></div>
-		<div id="drag2" draggable="true"
-		ondragstart="drag(event)"><input type="text" value="sssseeeeeeeeddddddddaaaaaaaaaa"></div>
+<form action="/sortCourse/test.action" method="post">
+shuru<input type="text" name="flag">
+tijiao<input type="submit" value="sub">
+</form>
 
 </body>
 </html>

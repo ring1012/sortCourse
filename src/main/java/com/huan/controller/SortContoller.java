@@ -1,7 +1,11 @@
 package com.huan.controller;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.huan.model.ChangeForm;
 import com.huan.model.Teacher;
 import com.huan.model.TeacherForm;
 import com.huan.sort.util.startSortCourse;
@@ -42,7 +47,6 @@ public class SortContoller {
 			String fixTable = request.getParameter("fixTable");
 			String changeStr = request.getParameter("changeStr");
 			startSortCourse rt = (startSortCourse) request.getSession().getAttribute("myCourse");
-			changeService.excute(fixTable, changeStr, rt, request);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -53,7 +57,7 @@ public class SortContoller {
 	}
 
 	@RequestMapping(value = "/deal.action", method = RequestMethod.POST)
-	public String deal( TeacherForm form) {
+	public String deal(TeacherForm form) throws IOException {
 		try {
 			request.setCharacterEncoding("UTF-8");
 			dealService.excute(form.getTeachers());
@@ -95,12 +99,11 @@ public class SortContoller {
 	}
 
 	@RequestMapping(value = "/change.action", method = RequestMethod.POST)
-	public String change() {
+	public String change(ChangeForm cf) throws IOException {
+		
 		try {
-			String fixTable = request.getParameter("fixTable");
-			String changeStr = request.getParameter("changeStr");
 			startSortCourse rt = (startSortCourse) request.getSession().getAttribute("myCourse");
-			changeService.excute(fixTable, changeStr, rt, request);
+			changeService.excute(cf, rt, request);
 
 		} catch (Exception e) {
 			e.printStackTrace();
