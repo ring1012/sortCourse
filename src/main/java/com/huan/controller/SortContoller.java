@@ -1,11 +1,8 @@
 package com.huan.controller;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.List;
 
-import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +10,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import com.huan.model.ChangeForm;
 import com.huan.model.Teacher;
 import com.huan.model.TeacherForm;
 import com.huan.sort.util.startSortCourse;
@@ -38,7 +34,7 @@ public class SortContoller {
 
 	@RequestMapping(value = "/input.action", method = RequestMethod.GET)
 	public String input() {
-		return "input";
+		return "ni/input";
 	}
 
 	@RequestMapping(value = "/test.action", method = RequestMethod.POST)
@@ -99,11 +95,11 @@ public class SortContoller {
 	}
 
 	@RequestMapping(value = "/change.action", method = RequestMethod.POST)
-	public String change(ChangeForm cf) throws IOException {
+	public String change() throws IOException {
 		
 		try {
 			startSortCourse rt = (startSortCourse) request.getSession().getAttribute("myCourse");
-			changeService.excute(cf, rt, request);
+			changeService.excute(rt, request);
 
 		} catch (Exception e) {
 			e.printStackTrace();

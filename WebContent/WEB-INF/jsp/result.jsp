@@ -54,9 +54,7 @@
 	var fixTable;
 	$(document).ready(function() {
 		classNums = $("tr[id='rooms'] td").length - 1;
-		console.log($("tr").length);
 		lessonNums = ($("tr").length - 8) / 7;
-		console.log(classNums + " " + lessonNums);
 		changeStr = new Array(classNums);
 		fixTable = new Array(classNums);
 		for (var i = 0; i < classNums; i++) {
@@ -129,7 +127,6 @@
 		positionStr = ev.target.className;
 		position = positionStr.split(" ");
 
-		console.log("fix: " + position);
 		if (fixTable[position[0]][position[1]] == 0) {
 			var tag = "[class='" + position[0] + " " + position[1] + "']";
 			$("body").find(tag).eq(0).attr("style", "background:red");
@@ -149,19 +146,17 @@
 			"action" : "/sortCourse/change.action"
 		});
 		var args = new Array(2);
-		args[0] = fixTable;
-		args[1] = changeStr;
 		var input = $("<input type='text'>");
 		input.attr({
 			"name" : "fixTable"
 		});
-		input.val(args[0]);
+		input.val(fixTable);
 		form.append(input);
 		input = $("<input type='text'>");
 		input.attr({
 			"name" : "changeStr"
 		});
-		input.val(args[1]);
+		input.val(changeStr);
 		form.append(input);
 		form.submit();
 

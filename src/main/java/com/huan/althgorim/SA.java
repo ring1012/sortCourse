@@ -596,45 +596,45 @@ public class SA {
 		for (int i = 0; i < row; i++) {
 			for (int j = 0; j < col; j++) {
 				if (sheet[i][j] == ConstantVal.BLANK_EMPTY) {
-					exchangeTwo(sheet[i], j);
+					exchangeTwo(sheet[i],i, j);
 				}
 			}
 		}
 
 	}
 
-	private void exchangeTwo(int[] is, int j) {
+	private void exchangeTwo(int[] is,int k, int j) {
 		List<Integer> last = new ArrayList<>();
 		if (allowMorning) {
 			if (j % lessonNum == morning - 1 || j % lessonNum == lessonNum - 1) {
 				return;
 			}
 			for (int i = 0; i < 5; i++) {
-				if (is[morning - 1 + i * lessonNum] > 0) {
+				if (is[morning - 1 + i * lessonNum] > 0&&fixTable[k][j]!=1) {
 					last.add(morning - 1 + i * lessonNum);
 				}
-				if (is[lessonNum - 1 + i * lessonNum] > 0) {
+				if (is[lessonNum - 1 + i * lessonNum] > 0&&fixTable[k][j]!=1) {
 					last.add(lessonNum - 1 + i * lessonNum);
 				}
 			}
 			if (saturday > 0) {
 				if (saturday > morning) {
-					if (is[5 * lessonNum + morning - 1] > 0) {
+					if (is[5 * lessonNum + morning - 1] > 0&&fixTable[k][j]!=1) {
 						last.add(5 * lessonNum + morning - 1);
 					}
 				} else {
-					if (is[5 * lessonNum + saturday - 1] > 0) {
+					if (is[5 * lessonNum + saturday - 1] > 0&&fixTable[k][j]!=1) {
 						last.add(5 * lessonNum + saturday - 1);
 					}
 				}
 			}
 			if (sunday > 0) {
 				if (sunday > morning) {
-					if (is[6 * lessonNum + morning - 1] > 0) {
+					if (is[6 * lessonNum + morning - 1] > 0&&fixTable[k][j]!=1) {
 						last.add(6 * lessonNum + morning - 1);
 					}
 				} else {
-					if (is[6 * lessonNum + sunday - 1] > 0) {
+					if (is[6 * lessonNum + sunday - 1] > 0&&fixTable[k][j]!=1) {
 						last.add(6 * lessonNum + sunday - 1);
 					}
 				}
@@ -645,17 +645,17 @@ public class SA {
 				return;
 			}
 			for (int i = 0; i < 5; i++) {
-				if (is[lessonNum - 1 + i * lessonNum] > 0) {
+				if (is[lessonNum - 1 + i * lessonNum] > 0&&fixTable[k][j]!=1) {
 					last.add(lessonNum - 1 + i * lessonNum);
 				}
 			}
 			if (saturday > 0) {
-				if (is[5 * lessonNum + saturday - 1] > 0) {
+				if (is[5 * lessonNum + saturday - 1] > 0&&fixTable[k][j]!=1) {
 					last.add(5 * lessonNum + saturday - 1);
 				}
 			}
 			if (sunday > 0) {
-				if (is[6 * lessonNum + sunday - 1] > 0) {
+				if (is[6 * lessonNum + sunday - 1] > 0&&fixTable[k][j]!=1) {
 					last.add(6 * lessonNum + sunday - 1);
 				}
 			}
@@ -899,6 +899,15 @@ public class SA {
 
 	public void changeAttr(int table[][], String exchange[], int sheet[][]) throws Myexception {
 		this.fixTable = table;
+		System.out.println("fixtable");
+		for(int i=0;i<fixTable.length;i++){
+			System.out.println();
+			for(int j=0;j<fixTable[0].length;j++){
+				System.out.print(fixTable[i][j]);
+			}
+		}
+		
+		
 		this.sheetInfor = sheet;
 		for (int i = 0; i < exchange.length; i++) {
 			if (exchange[i].length() != 0) {
@@ -917,7 +926,7 @@ public class SA {
 		makeHalfWork(oddSheet, evenSheet);
 		makeHalfWork(evenSheet, oddSheet);
 		updateDataBySheet(sheetInfor, wholeTeachers, ConstantVal.PROCESS_WHOLE);
-
+		setEmptyFit(sheetInfor);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
