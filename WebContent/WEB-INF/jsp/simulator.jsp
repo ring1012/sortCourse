@@ -142,6 +142,12 @@
 
 	}
 </script>
+<style>
+.grade{
+width:38%;
+height:35px;
+}
+</style>
 </head>
 <body>
 	<div class="container">
@@ -152,16 +158,18 @@
 		<form action="/sortCourse/deal.action" method="post"
 			class="documentForm" target="_blank">
 			<h3 class="text-center">年级信息</h3>
-			班级数目:<input type="number" name="classNum" class="classNum" min='1'
-				value="15">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			上午几节课:<input type="number" name="morning" class="morning" min='1'
-				value="4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 下午几节课:<input
-				type="number" name="afternoon" class="afternoon" min='1' value="3">
-			<br /> <br /> 周六一共几节课:<input type="number" name="saturday"
-				class="saturday" min='0' value="4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-			周日一共几节课:<input type="number" name="sunday" class="sunday" min='0'
-				value="0">
-			空白课可以放在上午最后一节<input type="checkbox" name="allowMorning" />
+			<table   border="0" >
+				<tr>
+				<td  class="grade">班级数目:<input type="number" name="classNum" class="classNum" min='1' value="15"></td>
+				<td  class="grade">上午几节课:<input type="number" name="morning" class="morning" min='1' value="4"></td>
+				<td  class="grade">下午几节课:<input type="number" name="afternoon" class="afternoon" min='1' value="3"></td>
+				</tr>
+				<tr class="grade">
+				<td  class="grade">周六一共几节课:<input type="number" name="saturday" class="saturday" min='0' value="4"></td>
+				<td  class="grade">周日一共几节课:<input type="number" name="sunday" class="sunday" min='0' value="0"></td>
+				<td  class="grade">空白课可以放在上午最后一节<input type="checkbox" name="allowMorning" /></td>
+				</tr>
+				</table>
 
 
 			<h3 class="text-center">教师信息</h3>

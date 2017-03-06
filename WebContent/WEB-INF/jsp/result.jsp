@@ -207,7 +207,7 @@
 				<h2>年级老师-结果</h2>
 				<div>
 					<table id="tab" border="1"
-						class="table table-hover table-striped table-bordered">
+						class="table table-hover table-bordered">
 						<tr id="rooms">
 							<td></td>
 							<%

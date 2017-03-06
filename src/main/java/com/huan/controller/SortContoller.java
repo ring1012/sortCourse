@@ -34,7 +34,7 @@ public class SortContoller {
 
 	@RequestMapping(value = "/input.action", method = RequestMethod.GET)
 	public String input() {
-		return "ni/input";
+		return "input";
 	}
 
 	@RequestMapping(value = "/test.action", method = RequestMethod.POST)
