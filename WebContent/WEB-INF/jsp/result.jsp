@@ -129,8 +129,8 @@
 
 		if (fixTable[position[0]][position[1]] == 0) {
 			var tag = "[class='" + position[0] + " " + position[1] + "']";
-			$("body").find(tag).eq(0).attr("style", "background:red");
-			$("body").find(tag).eq(1).attr("style", "background:red");
+			$("body").find(tag).eq(0).attr("style", "background:#66FFFF");
+			$("body").find(tag).eq(1).attr("style", "background:#66FFFF");
 			fixTable[position[0]][position[1]] = 1;
 		} else {
 			var tag = "[class='" + position[0] + " " + position[1] + "']";
@@ -141,24 +141,27 @@
 	}
 
 	function changeSubmit() {
-		var form = $("<form method='post' target='_blank'></form>");
-		form.attr({
-			"action" : "/sortCourse/change.action"
-		});
-		var args = new Array(2);
-		var input = $("<input type='text'>");
-		input.attr({
-			"name" : "fixTable"
-		});
-		input.val(fixTable);
-		form.append(input);
-		input = $("<input type='text'>");
-		input.attr({
-			"name" : "changeStr"
-		});
-		input.val(changeStr);
-		form.append(input);
-		form.submit();
+// 		var form = $("<form method='post' target='_blank'></form>");
+// 		form.attr({
+// 			"action" : "/sortCourse/change.action"
+// 		});
+// 		var args = new Array(2);
+// 		var input = $("<input type='text'>");
+// 		input.attr({
+// 			"name" : "fixTable"
+// 		});
+// 		input.val(fixTable);
+// 		form.append(input);
+// 		input = $("<input type='text'>");
+// 		input.attr({
+// 			"name" : "changeStr"
+// 		});
+// 		input.val(changeStr);
+// 		form.append(input);
+// 		form.submit();
+		$(".myFixTable").val(fixTable);
+		$(".myChangeStr").val(changeStr);
+		return true;
 
 	}
 	$(document).ready(function() {
@@ -303,9 +306,14 @@
 					</table>
 				</div>
 
+				<form method='post' target='_blank' action="/sortCourse/change.action" onsubmit="return changeSubmit();">
+				<input type="hidden" name="fixTable" class="myFixTable" />
+				<input type="hidden" name="changeStr" class="myChangeStr" />				
+				
 
-				<button type="button" class="btn btn-info btn-lg"
-					style="aligen: center" id="btnConfirm" onclick="changeSubmit()">提交</button>
+				<input type="submit" class="btn btn-info btn-lg"
+					style="aligen: center" id="btnConfirm" value="提交" />
+					</form>
 				<br />
 				<br />
 				<br />

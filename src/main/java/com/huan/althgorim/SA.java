@@ -19,9 +19,10 @@ import com.huan.definition.ResultType;
 import com.huan.exception.Myexception;
 import com.huan.model.BaseTeacher;
 import com.huan.model.HalfTeacher;
+import com.huan.model.Teacher;
 import com.huan.model.WholeTeacher;
 import com.huan.sort.util.ProcessUtil;
-import com.huan.model.Teacher;
+
 
 public class SA {
 	private static final LoggerUtil logger = new LoggerUtil(SA.class);
@@ -745,11 +746,11 @@ public class SA {
 	public void printSheet(int sheet[][], int odd[][], int even[][]) {
 		logger.info("\r\n\t");
 		for (int i = 0; i < classNum; i++) {
-			logger.info(i + "\t\t");
+			logger.info((i+1)+ "\t\t");
 		}
 		logger.info("\r\n");
 		for (int j = 0; j < needLessons; j++) {
-			logger.info((j) + "\t");
+			logger.info((j+1) + "\t");
 			if (everyWeek[j] == false) {
 
 				for (int i = 0; i < classNum; i++) {
@@ -799,7 +800,7 @@ public class SA {
 			site[count++] = each;
 		}
 		Arrays.sort(site);
-		return Math.exp((1 + distance.size()) * (8 - 2 * site[0]));
+		return Math.exp((10* distance.size()) * (8 - 2 * site[0]));
 	}
 
 	// public double additionCost(List<Integer> weekY, int k) {
@@ -899,14 +900,15 @@ public class SA {
 
 	public void changeAttr(int table[][], String exchange[], int sheet[][]) throws Myexception {
 		this.fixTable = table;
-		System.out.println("fixtable");
-		for(int i=0;i<fixTable.length;i++){
-			System.out.println();
-			for(int j=0;j<fixTable[0].length;j++){
-				System.out.print(fixTable[i][j]);
+		int row=fixTable.length,col=fixTable[0].length;
+		logger.info("固定\r\n");
+		for(int i=0;i<row;i++){
+			for(int j=0;j<col;j++){
+				logger.info(fixTable[i][j]+" ");
 			}
+			logger.info("\r\n");
 		}
-		
+		logger.info("\n交换:\n");
 		
 		this.sheetInfor = sheet;
 		for (int i = 0; i < exchange.length; i++) {
@@ -917,12 +919,14 @@ public class SA {
 					// int temp = sheetInfor[i][twoNum[0]];
 					// sheetInfor[i][twoNum[0]] = sheetInfor[i][twoNum[1]];
 					// sheetInfor[i][twoNum[1]] = temp;
+					logger.info(String.format("%d班： %d <==> %d\n", i+1,twoNum[0]+1,twoNum[1]+1));
 					alterTable(sheetInfor, i, twoNum[0], twoNum[1]);
 					alterTable(oddSheet, i, twoNum[0], twoNum[1]);
 					alterTable(evenSheet, i, twoNum[0], twoNum[1]);
 				}
 			}
 		}
+		logger.info("\n");
 		makeHalfWork(oddSheet, evenSheet);
 		makeHalfWork(evenSheet, oddSheet);
 		updateDataBySheet(sheetInfor, wholeTeachers, ConstantVal.PROCESS_WHOLE);
@@ -1152,7 +1156,7 @@ public class SA {
 					sum += this.wholeTeachers.get(p).wholePro.connectCells.size();
 				}
 			}
-			logger.info("最后连堂: " + sum + "\n");
+			logger.info("最后连堂: " + sum/2 + "\n");
 			this.sheetInfor = cloneArray(bestResult.sheetInfor);
 			bestResult.indexTransform(bestResult.sheetInfor, whole2pgi, ConstantVal.PROCESS_WHOLE);
 			bestResult.indexTransform(oddSheet, half2pgi, ConstantVal.PROCESS_ODD);
@@ -1740,7 +1744,7 @@ public class SA {
 						sum += this.wholeTeachers.get(p).wholePro.connectCells.size();
 					}
 				}
-				logger.info("connect: " + sum + "\n");
+				logger.info("connect: " + sum/2 + "\n");
 			}
 
 		} else {
